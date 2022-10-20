@@ -1,5 +1,4 @@
-﻿using Foodcourt.Data.Entities;
-using Foodcourt.Data.Entities.Cafes;
+﻿using Foodcourt.Data.Entities.Cafes;
 using Foodcourt.Data.Entities.Orders;
 using Foodcourt.Data.Entities.Users;
 using Microsoft.EntityFrameworkCore;
@@ -16,8 +15,10 @@ public class DataContext : DbContext
         modelBuilder.UseSerialColumns();
 
     public DbSet<User> Users { get; set; }
-    
     public DbSet<Cafe> Cafes { get; set; }
-
     public DbSet<Order> Orders { get; set; }
+    public DbSet<Basket> Baskets { get; set; }
+    public DbSet<Product> Products { get; set; }
+    public DbSet<OrderProduct> OrderProducts { get; set; }
+    public DbSet<BasketProduct> BasketProducts { get; set; }
 }
