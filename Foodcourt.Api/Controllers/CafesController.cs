@@ -20,7 +20,7 @@ namespace Foodcourt.Api.Controllers
             _cafeService = cafeService;
 
         [HttpGet]
-        [ProducesResponseType(typeof(SearchResponse<CafeSearchResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(SearchResponse<CafeResponse>), StatusCodes.Status200OK)]
         public async Task<ActionResult> SearchCafes([FromQuery]CafeSearchRequest request)
         {
             var response = await _cafeService.SearchByQuery(request);
@@ -28,7 +28,7 @@ namespace Foodcourt.Api.Controllers
         }
         
         [HttpGet("{cafeId:long}")]
-        [ProducesResponseType(typeof(CafeSearchResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CafeResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(NotFoundException), StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetCafe(long cafeId)
         {
@@ -40,7 +40,7 @@ namespace Foodcourt.Api.Controllers
         }
         
         [HttpGet("{cafeId:long}/products")]
-        [ProducesResponseType(typeof(SearchResponse<Product>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(SearchResponse<ProductResponse>), StatusCodes.Status200OK)]
         public async Task<ActionResult> GetCafeProducts(long cafeId)
         {
             var response = await _cafeService.GetProducts(cafeId);
@@ -48,7 +48,7 @@ namespace Foodcourt.Api.Controllers
         }
         
         [HttpGet("{cafeId:long}/products/{productId:long}")]
-        [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status200OK)]
         public async Task<ActionResult> GetCafeProducts(long cafeId, long productId)
         {
             try {

@@ -16,13 +16,13 @@ public class CafeService : ICafeService
     public CafeService(DataContext dataContext) => 
         _dataContext = dataContext;
 
-    public async Task<SearchResponse<CafeSearchResponse>> SearchByQuery(CafeSearchRequest cafeSearch)
+    public async Task<SearchResponse<CafeResponse>> SearchByQuery(CafeSearchRequest cafeSearch)
     {
         var cafes = await _dataContext.Cafes.ToListAsync();
-        return new SearchResponse<CafeSearchResponse>(cafes.ToList().Select(cafe => cafe.ToEntity()).ToList(), cafes.Count);
+        return new SearchResponse<CafeResponse>(cafes.ToList().Select(cafe => cafe.ToEntity()).ToList(), cafes.Count);
     }
 
-    public async Task<CafeSearchResponse> Get(long cafeId)
+    public async Task<CafeResponse> Get(long cafeId)
     {
         var cafe = await _dataContext.Cafes.FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));
         if (cafe == null)
@@ -30,17 +30,19 @@ public class CafeService : ICafeService
         return cafe.ToEntity();
     }
 
-    public async Task<SearchResponse<Product>> GetProducts(long cafeId)
+    public async Task<SearchResponse<ProductResponse>> GetProducts(long cafeId)
     {
         var products = await _dataContext.Products.Where(product => Equals(product.CafeId, cafeId)).ToListAsync();
-        return new SearchResponse<Product>(products.ToList().ToList(), products.Count);
+        return new SearchResponse<ProductResponse>(products.Select(product => product.ToEntity()).ToList(), products.Count);
     }
 
-    public async Task<Product> GetProduct(long cafeId, long productId)
+    public async Task<ProductResponse> GetProduct(long cafeId, long productId)
     {
-        var product = await _dataContext.Products.FirstOrDefaultAsync(product => product.Id.Equals(productId));
+        var product = await _dataContext.Products
+            .Include(p => p.ProductTypes)
+            .FirstOrDefaultAsync(product => product.Id == productId);
         if (product == null) 
             throw new NotFoundException(HttpStatusCode.NotFound, $"Product with id = {productId} in cafe with id = {cafeId} not found");
-        return product;
+        return product.ToEntity();
     }
 }

@@ -4,7 +4,7 @@ using Foodcourt.Data.Api.Entities.Users;
 namespace Foodcourt.Data.Api.Entities.Cafes;
 
 public class Product
-{
+{ 
     public long Id { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
@@ -19,6 +19,6 @@ public class Product
     public long CafeId { get; set; }
     public Cafe Cafe { get; set; }
    
-    public virtual List<ProductVariant> ProductVariants {get; set; }
-    public virtual List<ProductType> ProductTypes {get; set; }
+    public virtual List<ProductVariant>? ProductVariants {get; set; }
+    public virtual List<ProductType>? ProductTypes {get; set; }
 }

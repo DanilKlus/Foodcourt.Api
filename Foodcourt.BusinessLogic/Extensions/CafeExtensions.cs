@@ -5,9 +5,9 @@ namespace Foodcourt.BusinessLogic.Extensions
 {
     public static class CafeExtensions
     {
-        public static CafeSearchResponse ToEntity(this Cafe cafe)
+        public static CafeResponse ToEntity(this Cafe cafe)
         {
-            return new CafeSearchResponse()
+            return new CafeResponse()
             {
                 Id = cafe.Id,
                 Name = cafe.Name,
