@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Foodcourt.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20221020194455_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20221021145123_InitialCreateWithInternal")]
+    partial class InitialCreateWithInternal
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,21 +23,6 @@ namespace Foodcourt.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseSerialColumns(modelBuilder);
-
-            modelBuilder.Entity("CafeUser", b =>
-                {
-                    b.Property<long>("CafesId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("UsersId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("CafesId", "UsersId");
-
-                    b.HasIndex("UsersId");
-
-                    b.ToTable("CafeUser");
-                });
 
             modelBuilder.Entity("Foodcourt.Data.Api.Entities.Cafes.Cafe", b =>
                 {
@@ -81,7 +66,12 @@ namespace Foodcourt.Data.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Cafes");
                 });
@@ -116,8 +106,6 @@ namespace Foodcourt.Data.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CafeId");
 
                     b.ToTable("Products");
                 });
@@ -219,8 +207,7 @@ namespace Foodcourt.Data.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.HasIndex("ProductId")
-                        .IsUnique();
+                    b.HasIndex("ProductId");
 
                     b.HasIndex("ProductVariantId");
 
@@ -273,8 +260,7 @@ namespace Foodcourt.Data.Migrations
 
                     b.HasIndex("BasketId");
 
-                    b.HasIndex("ProductId")
-                        .IsUnique();
+                    b.HasIndex("ProductId");
 
                     b.HasIndex("ProductVariantId");
 
@@ -375,36 +361,17 @@ namespace Foodcourt.Data.Migrations
                     b.ToTable("RoleUser");
                 });
 
-            modelBuilder.Entity("CafeUser", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Cafes.Cafe", b =>
                 {
-                    b.HasOne("Foodcourt.Data.Api.Entities.Cafes.Cafe", null)
-                        .WithMany()
-                        .HasForeignKey("CafesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Foodcourt.Data.Api.Entities.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Cafes.Product", b =>
-                {
-                    b.HasOne("Foodcourt.Data.Api.Entities.Cafes.Cafe", "Cafe")
-                        .WithMany("Products")
-                        .HasForeignKey("CafeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Cafe");
+                        .WithMany("Cafes")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("Foodcourt.Data.Api.Entities.Orders.Order", b =>
                 {
                     b.HasOne("Foodcourt.Data.Api.Entities.Cafes.Cafe", "Cafe")
-                        .WithMany("Orders")
+                        .WithMany()
                         .HasForeignKey("CafeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -429,8 +396,8 @@ namespace Foodcourt.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("Foodcourt.Data.Api.Entities.Cafes.Product", "Product")
-                        .WithOne("OrderProduct")
-                        .HasForeignKey("Foodcourt.Data.Api.Entities.Orders.OrderProduct", "ProductId")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -467,8 +434,8 @@ namespace Foodcourt.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("Foodcourt.Data.Api.Entities.Cafes.Product", "Product")
-                        .WithOne("BasketProduct")
-                        .HasForeignKey("Foodcourt.Data.Api.Entities.Users.BasketProduct", "ProductId")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -530,22 +497,6 @@ namespace Foodcourt.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Cafes.Cafe", b =>
-                {
-                    b.Navigation("Orders");
-
-                    b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Cafes.Product", b =>
-                {
-                    b.Navigation("BasketProduct")
-                        .IsRequired();
-
-                    b.Navigation("OrderProduct")
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Foodcourt.Data.Api.Entities.Orders.Order", b =>
                 {
                     b.Navigation("OrderProducts");
@@ -560,6 +511,8 @@ namespace Foodcourt.Data.Migrations
                 {
                     b.Navigation("Basket")
                         .IsRequired();
+
+                    b.Navigation("Cafes");
 
                     b.Navigation("Orders");
                 });

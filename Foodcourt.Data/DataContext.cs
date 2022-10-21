@@ -13,12 +13,6 @@ public class DataContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // modelBuilder.Entity<User>()
-        //     .HasOne(b => b.Basket)
-        //     .WithOne(i => i.User)
-        //     .HasForeignKey<Basket>(b => b.UserId);
-        
-        
         modelBuilder.UseSerialColumns();
     }
 

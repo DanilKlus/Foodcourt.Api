@@ -13,10 +13,10 @@ public class Cafe
     public string Location { get; set; }
     public bool IsActive { get; set; }
     
-    public List<Order> Orders { get; set; }
-    public List<Product> Products { get; set; }
+    internal List<Order> Orders { get; set; }
+    internal List<Product> Products { get; set; }
     
-    public virtual List<User> Users { get; set; } 
+    internal virtual List<User> Users { get; set; } 
     
     public string CertifyingDocument { get; set; }
     public string Response { get; set; }

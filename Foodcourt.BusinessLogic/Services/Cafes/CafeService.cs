@@ -33,4 +33,11 @@ public class CafeService : ICafeService
         var products = await dataContext.Products.Where(product => Equals(product.CafeId, cafeId)).ToListAsync();
         return new SearchResponse<Product>(products.ToList().ToList(), products.Count);
     }
+
+    public async Task<Product> GetProduct(long cafeId, long productId)
+    {
+        var product = await dataContext.Products.FirstOrDefaultAsync(product => product.Id.Equals(productId));
+        if (product != null) return product;
+        throw new Exception();
+    }
 }

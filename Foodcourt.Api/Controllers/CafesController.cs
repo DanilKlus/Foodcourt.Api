@@ -44,5 +44,13 @@ namespace Foodcourt.Api.Controllers
             var response = await cafeService.GetProducts(cafeId);
             return Ok(response);
         }
+        
+        [HttpGet("{cafeId:long}/products/{productId:long}")]
+        [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
+        public async Task<ActionResult> GetCafeProducts(long cafeId, long productId)
+        {
+            var response = await cafeService.GetProduct(cafeId, productId);
+            return Ok(response);
+        }
     }
 }
