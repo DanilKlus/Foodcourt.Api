@@ -8,7 +8,6 @@ namespace Foodcourt.Api.DI
         {
             services
                 .AddDistributedMemoryCache()
-                .AddScoped<ICafeRepository, CafeRepository>()
                 .AddScoped<ICafeService, CafeService>();
             return services;
         }

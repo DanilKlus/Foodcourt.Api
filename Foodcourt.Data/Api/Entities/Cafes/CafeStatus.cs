@@ -1,4 +1,4 @@
-﻿namespace Foodcourt.Data.Entities.Cafes;
+﻿namespace Foodcourt.Data.Api.Entities.Cafes;
 
 public enum CafeStatus
 {

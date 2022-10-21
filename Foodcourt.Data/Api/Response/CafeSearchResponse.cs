@@ -1,10 +1,10 @@
-﻿using Foodcourt.Data.Entities.Cafes;
+﻿using Foodcourt.Data.Api.Entities.Cafes;
 
-namespace Foodcourt.Data.Entities.Response;
+namespace Foodcourt.Data.Api.Response;
 
 public class CafeSearchResponse
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
     public CafeStatus Status { get; set; }

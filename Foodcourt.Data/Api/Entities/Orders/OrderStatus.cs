@@ -1,4 +1,4 @@
-﻿namespace Foodcourt.Data.Entities.Orders;
+﻿namespace Foodcourt.Data.Api.Entities.Orders;
 
 public enum OrderStatus
 {

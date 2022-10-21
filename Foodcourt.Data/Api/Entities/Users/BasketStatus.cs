@@ -1,4 +1,4 @@
-﻿namespace Foodcourt.Data.Entities;
+﻿namespace Foodcourt.Data.Api.Entities.Users;
 
 public enum BasketStatus
 {

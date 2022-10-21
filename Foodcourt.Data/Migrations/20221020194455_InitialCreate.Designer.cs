@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Foodcourt.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20221019164847_InitialCreate")]
+    [Migration("20221020194455_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,11 +26,11 @@ namespace Foodcourt.Data.Migrations
 
             modelBuilder.Entity("CafeUser", b =>
                 {
-                    b.Property<Guid>("CafesId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("CafesId")
+                        .HasColumnType("bigint");
 
-                    b.Property<Guid>("UsersId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("UsersId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("CafesId", "UsersId");
 
@@ -39,11 +39,13 @@ namespace Foodcourt.Data.Migrations
                     b.ToTable("CafeUser");
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Cafes.Cafe", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Cafes.Cafe", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Avatar")
                         .IsRequired()
@@ -84,18 +86,20 @@ namespace Foodcourt.Data.Migrations
                     b.ToTable("Cafes");
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Cafes.Product", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Cafes.Product", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Avatar")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("CafeId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("CafeId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -115,10 +119,10 @@ namespace Foodcourt.Data.Migrations
 
                     b.HasIndex("CafeId");
 
-                    b.ToTable("Product");
+                    b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Cafes.ProductType", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Cafes.ProductType", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -132,10 +136,10 @@ namespace Foodcourt.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProductType");
+                    b.ToTable("ProductTypes");
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Cafes.ProductVariant", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Cafes.ProductVariant", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -149,10 +153,10 @@ namespace Foodcourt.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProductVariant");
+                    b.ToTable("ProductVariants");
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Orders.Order", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Orders.Order", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -160,8 +164,8 @@ namespace Foodcourt.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("Id"));
 
-                    b.Property<Guid>("CafeId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("CafeId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Comment")
                         .IsRequired()
@@ -179,8 +183,8 @@ namespace Foodcourt.Data.Migrations
                     b.Property<int>("TotalPrice")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -191,7 +195,7 @@ namespace Foodcourt.Data.Migrations
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Orders.OrderProduct", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Orders.OrderProduct", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -205,8 +209,8 @@ namespace Foodcourt.Data.Migrations
                     b.Property<long>("OrderId")
                         .HasColumnType("bigint");
 
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
 
                     b.Property<long>("ProductVariantId")
                         .HasColumnType("bigint");
@@ -215,47 +219,52 @@ namespace Foodcourt.Data.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("ProductId")
+                        .IsUnique();
 
                     b.HasIndex("ProductVariantId");
 
-                    b.ToTable("OrderProduct");
+                    b.ToTable("OrderProducts");
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Users.Basket", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Users.Basket", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("Id"));
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Basket");
+                    b.ToTable("Baskets");
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Users.BasketProduct", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Users.BasketProduct", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("bigint");
 
-                    b.Property<Guid>("BasketId")
-                        .HasColumnType("uuid");
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("BasketId")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("Count")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
 
                     b.Property<long>("ProductVariantId")
                         .HasColumnType("bigint");
@@ -264,14 +273,15 @@ namespace Foodcourt.Data.Migrations
 
                     b.HasIndex("BasketId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("ProductId")
+                        .IsUnique();
 
                     b.HasIndex("ProductVariantId");
 
-                    b.ToTable("BasketProduct");
+                    b.ToTable("BasketProducts");
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Users.Role", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Users.Role", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -285,14 +295,16 @@ namespace Foodcourt.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Role");
+                    b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Users.User", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Users.User", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -320,13 +332,13 @@ namespace Foodcourt.Data.Migrations
 
             modelBuilder.Entity("ProductProductType", b =>
                 {
-                    b.Property<long>("ProductTypeId")
+                    b.Property<long>("ProductTypesId")
                         .HasColumnType("bigint");
 
-                    b.Property<Guid>("ProductsId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("ProductsId")
+                        .HasColumnType("bigint");
 
-                    b.HasKey("ProductTypeId", "ProductsId");
+                    b.HasKey("ProductTypesId", "ProductsId");
 
                     b.HasIndex("ProductsId");
 
@@ -338,8 +350,8 @@ namespace Foodcourt.Data.Migrations
                     b.Property<long>("ProductVariantsId")
                         .HasColumnType("bigint");
 
-                    b.Property<Guid>("ProductsId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("ProductsId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("ProductVariantsId", "ProductsId");
 
@@ -353,8 +365,8 @@ namespace Foodcourt.Data.Migrations
                     b.Property<long>("RolesId")
                         .HasColumnType("bigint");
 
-                    b.Property<Guid>("UsersId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("UsersId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("RolesId", "UsersId");
 
@@ -365,96 +377,108 @@ namespace Foodcourt.Data.Migrations
 
             modelBuilder.Entity("CafeUser", b =>
                 {
-                    b.HasOne("Foodcourt.Data.Entities.Cafes.Cafe", null)
+                    b.HasOne("Foodcourt.Data.Api.Entities.Cafes.Cafe", null)
                         .WithMany()
                         .HasForeignKey("CafesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Foodcourt.Data.Entities.Users.User", null)
+                    b.HasOne("Foodcourt.Data.Api.Entities.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Cafes.Product", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Cafes.Product", b =>
                 {
-                    b.HasOne("Foodcourt.Data.Entities.Cafes.Cafe", null)
+                    b.HasOne("Foodcourt.Data.Api.Entities.Cafes.Cafe", "Cafe")
                         .WithMany("Products")
                         .HasForeignKey("CafeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Cafe");
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Orders.Order", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Orders.Order", b =>
                 {
-                    b.HasOne("Foodcourt.Data.Entities.Cafes.Cafe", null)
+                    b.HasOne("Foodcourt.Data.Api.Entities.Cafes.Cafe", "Cafe")
                         .WithMany("Orders")
                         .HasForeignKey("CafeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Foodcourt.Data.Entities.Users.User", null)
+                    b.HasOne("Foodcourt.Data.Api.Entities.Users.User", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Cafe");
+
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Orders.OrderProduct", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Orders.OrderProduct", b =>
                 {
-                    b.HasOne("Foodcourt.Data.Entities.Orders.Order", null)
+                    b.HasOne("Foodcourt.Data.Api.Entities.Orders.Order", "Order")
                         .WithMany("OrderProducts")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Foodcourt.Data.Entities.Cafes.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
+                    b.HasOne("Foodcourt.Data.Api.Entities.Cafes.Product", "Product")
+                        .WithOne("OrderProduct")
+                        .HasForeignKey("Foodcourt.Data.Api.Entities.Orders.OrderProduct", "ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Foodcourt.Data.Entities.Cafes.ProductVariant", "ProductVariant")
+                    b.HasOne("Foodcourt.Data.Api.Entities.Cafes.ProductVariant", "ProductVariant")
                         .WithMany()
                         .HasForeignKey("ProductVariantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Order");
 
                     b.Navigation("Product");
 
                     b.Navigation("ProductVariant");
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Users.Basket", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Users.Basket", b =>
                 {
-                    b.HasOne("Foodcourt.Data.Entities.Users.User", null)
+                    b.HasOne("Foodcourt.Data.Api.Entities.Users.User", "User")
                         .WithOne("Basket")
-                        .HasForeignKey("Foodcourt.Data.Entities.Users.Basket", "UserId")
+                        .HasForeignKey("Foodcourt.Data.Api.Entities.Users.Basket", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Users.BasketProduct", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Users.BasketProduct", b =>
                 {
-                    b.HasOne("Foodcourt.Data.Entities.Users.Basket", null)
+                    b.HasOne("Foodcourt.Data.Api.Entities.Users.Basket", "Basket")
                         .WithMany("BasketProducts")
                         .HasForeignKey("BasketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Foodcourt.Data.Entities.Cafes.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
+                    b.HasOne("Foodcourt.Data.Api.Entities.Cafes.Product", "Product")
+                        .WithOne("BasketProduct")
+                        .HasForeignKey("Foodcourt.Data.Api.Entities.Users.BasketProduct", "ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Foodcourt.Data.Entities.Cafes.ProductVariant", "ProductVariant")
+                    b.HasOne("Foodcourt.Data.Api.Entities.Cafes.ProductVariant", "ProductVariant")
                         .WithMany()
                         .HasForeignKey("ProductVariantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Basket");
 
                     b.Navigation("Product");
 
@@ -463,13 +487,13 @@ namespace Foodcourt.Data.Migrations
 
             modelBuilder.Entity("ProductProductType", b =>
                 {
-                    b.HasOne("Foodcourt.Data.Entities.Cafes.ProductType", null)
+                    b.HasOne("Foodcourt.Data.Api.Entities.Cafes.ProductType", null)
                         .WithMany()
-                        .HasForeignKey("ProductTypeId")
+                        .HasForeignKey("ProductTypesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Foodcourt.Data.Entities.Cafes.Product", null)
+                    b.HasOne("Foodcourt.Data.Api.Entities.Cafes.Product", null)
                         .WithMany()
                         .HasForeignKey("ProductsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -478,13 +502,13 @@ namespace Foodcourt.Data.Migrations
 
             modelBuilder.Entity("ProductProductVariant", b =>
                 {
-                    b.HasOne("Foodcourt.Data.Entities.Cafes.ProductVariant", null)
+                    b.HasOne("Foodcourt.Data.Api.Entities.Cafes.ProductVariant", null)
                         .WithMany()
                         .HasForeignKey("ProductVariantsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Foodcourt.Data.Entities.Cafes.Product", null)
+                    b.HasOne("Foodcourt.Data.Api.Entities.Cafes.Product", null)
                         .WithMany()
                         .HasForeignKey("ProductsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -493,37 +517,46 @@ namespace Foodcourt.Data.Migrations
 
             modelBuilder.Entity("RoleUser", b =>
                 {
-                    b.HasOne("Foodcourt.Data.Entities.Users.Role", null)
+                    b.HasOne("Foodcourt.Data.Api.Entities.Users.Role", null)
                         .WithMany()
                         .HasForeignKey("RolesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Foodcourt.Data.Entities.Users.User", null)
+                    b.HasOne("Foodcourt.Data.Api.Entities.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Cafes.Cafe", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Cafes.Cafe", b =>
                 {
                     b.Navigation("Orders");
 
                     b.Navigation("Products");
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Orders.Order", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Cafes.Product", b =>
+                {
+                    b.Navigation("BasketProduct")
+                        .IsRequired();
+
+                    b.Navigation("OrderProduct")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Orders.Order", b =>
                 {
                     b.Navigation("OrderProducts");
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Users.Basket", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Users.Basket", b =>
                 {
                     b.Navigation("BasketProducts");
                 });
 
-            modelBuilder.Entity("Foodcourt.Data.Entities.Users.User", b =>
+            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Users.User", b =>
                 {
                     b.Navigation("Basket")
                         .IsRequired();

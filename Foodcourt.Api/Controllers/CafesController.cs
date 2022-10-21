@@ -1,9 +1,9 @@
 ﻿using System.Net.Mime;
-using System.Runtime.InteropServices;
 using Foodcourt.BusinessLogic.Services.Cafes;
 using Foodcourt.Data.Api;
+using Foodcourt.Data.Api.Entities.Cafes;
 using Foodcourt.Data.Api.Request;
-using Foodcourt.Data.Entities.Response;
+using Foodcourt.Data.Api.Response;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Foodcourt.Api.Controllers
@@ -23,18 +23,25 @@ namespace Foodcourt.Api.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(SearchResponse<CafeSearchResponse>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(FileNotFoundException), StatusCodes.Status404NotFound)]
         public async Task<ActionResult> SearchCafes([FromQuery]CafeSearchRequest request)
         {
             var response = await cafeService.SearchByQuery(request);
             return Ok(response);
         }
         
-        [HttpGet("{cafeId}")]
+        [HttpGet("{cafeId:long}")]
         [ProducesResponseType(typeof(CafeSearchResponse), StatusCodes.Status200OK)]
-        public async Task<ActionResult> GetCafe(Guid cafeId)
+        public async Task<ActionResult> GetCafe(long cafeId)
         {
             var response = await cafeService.Get(cafeId);
+            return Ok(response);
+        }
+        
+        [HttpGet("{cafeId:long}/products")]
+        [ProducesResponseType(typeof(SearchResponse<Product>), StatusCodes.Status200OK)]
+        public async Task<ActionResult> GetCafeProducts(long cafeId)
+        {
+            var response = await cafeService.GetProducts(cafeId);
             return Ok(response);
         }
     }

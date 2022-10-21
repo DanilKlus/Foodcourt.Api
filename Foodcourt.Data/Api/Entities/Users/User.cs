@@ -1,20 +1,21 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Foodcourt.Data.Entities.Cafes;
-using Foodcourt.Data.Entities.Orders;
+﻿using Foodcourt.Data.Api.Entities.Cafes;
+using Foodcourt.Data.Api.Entities.Orders;
 
-namespace Foodcourt.Data.Entities.Users;
+namespace Foodcourt.Data.Api.Entities.Users;
 
 public class User
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
     public string Name { get; set; }
     public string Email { get; set; }
     public string Phone { get; set; }
     public string Password { get; set; }
     public bool IsActive { get; set; }
     
-    public Basket Basket { get; set; } 
+    public virtual Basket Basket { get; set; } 
+    
     public List<Order> Orders { get; set; }
-    public List<Role> Roles { get; set; }
-    public List<Cafe> Cafes { get; set; }
+    
+    public virtual List<Role> Roles { get; set; }
+    public virtual List<Cafe> Cafes { get; set; }
 }

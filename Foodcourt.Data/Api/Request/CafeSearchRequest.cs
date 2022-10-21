@@ -1,4 +1,4 @@
-﻿using Foodcourt.Data.Entities.Cafes;
+﻿using Foodcourt.Data.Api.Entities.Cafes;
 
 namespace Foodcourt.Data.Api.Request;
 

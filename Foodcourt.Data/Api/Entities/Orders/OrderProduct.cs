@@ -1,14 +1,21 @@
-﻿using Foodcourt.Data.Entities.Cafes;
-using Newtonsoft.Json;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Foodcourt.Data.Api.Entities.Cafes;
 
-namespace Foodcourt.Data.Entities.Orders;
+namespace Foodcourt.Data.Api.Entities.Orders;
 
 public class OrderProduct
 {
     public long Id { get; set; }
     public int Count { get; set; }
     
+    
+    [ForeignKey("ProductId")]
+    public long ProductId { get; set; }
+    public virtual Product Product { get; set; }
+    [ForeignKey("ProductVariantId")]
+    public long ProductVariantId { get; set; }
+    public virtual ProductVariant ProductVariant { get; set; }
+    
     public long OrderId { get; set; }
-    public Product Product { get; set; }
-    public ProductVariant ProductVariant { get; set; }
+    public Order Order { get; set; }
 }

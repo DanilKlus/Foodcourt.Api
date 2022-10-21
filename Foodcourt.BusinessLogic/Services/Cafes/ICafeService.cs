@@ -1,11 +1,13 @@
 ﻿using Foodcourt.Data.Api;
+using Foodcourt.Data.Api.Entities.Cafes;
 using Foodcourt.Data.Api.Request;
-using Foodcourt.Data.Entities.Response;
+using Foodcourt.Data.Api.Response;
 
 namespace Foodcourt.BusinessLogic.Services.Cafes;
 
 public interface ICafeService
 {
     Task<SearchResponse<CafeSearchResponse>> SearchByQuery(CafeSearchRequest cafeSearch);
-    Task<CafeSearchResponse> Get(Guid cafeId);
+    Task<CafeSearchResponse> Get(long cafeId);
+    Task<SearchResponse<Product>> GetProducts(long cafeId);
 }

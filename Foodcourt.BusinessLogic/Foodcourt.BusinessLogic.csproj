@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Exceptionless.WebApi" Version="4.8.0" />
       <PackageReference Include="NSwag.AspNetCore" Version="13.17.0" />
       <PackageReference Include="Vostok.Configuration" Version="0.1.42" />
       <PackageReference Include="Vostok.Configuration.Sources.Json" Version="0.1.6" />

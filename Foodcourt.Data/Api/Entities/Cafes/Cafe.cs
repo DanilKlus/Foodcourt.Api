@@ -1,12 +1,11 @@
-﻿using Foodcourt.Data.Entities.Orders;
-using Foodcourt.Data.Entities.Users;
-using Newtonsoft.Json;
+﻿using Foodcourt.Data.Api.Entities.Orders;
+using Foodcourt.Data.Api.Entities.Users;
 
-namespace Foodcourt.Data.Entities.Cafes;
+namespace Foodcourt.Data.Api.Entities.Cafes;
 
 public class Cafe
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
     public CafeStatus Status { get; set; }
@@ -16,7 +15,8 @@ public class Cafe
     
     public List<Order> Orders { get; set; }
     public List<Product> Products { get; set; }
-    public List<User> Users { get; set; } 
+    
+    public virtual List<User> Users { get; set; } 
     
     public string CertifyingDocument { get; set; }
     public string Response { get; set; }

@@ -1,5 +1,5 @@
-﻿using Foodcourt.Data.Entities.Cafes;
-using Foodcourt.Data.Entities.Response;
+﻿using Foodcourt.Data.Api.Entities.Cafes;
+using Foodcourt.Data.Api.Response;
 
 namespace Foodcourt.BusinessLogic.Extensions
 {

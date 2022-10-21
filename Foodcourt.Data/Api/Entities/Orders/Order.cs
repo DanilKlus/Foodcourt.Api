@@ -1,5 +1,7 @@
-﻿
-namespace Foodcourt.Data.Entities.Orders;
+﻿using Foodcourt.Data.Api.Entities.Cafes;
+using Foodcourt.Data.Api.Entities.Users;
+
+namespace Foodcourt.Data.Api.Entities.Orders;
 
 public class Order
 {
@@ -10,7 +12,9 @@ public class Order
     public DateTime CreationTime { get; set; }
     public string Comment { get; set; }
     
-    public Guid UserId { get; set; }
-    public Guid CafeId { get; set; }
+    public long UserId { get; set; }
+    public long CafeId { get; set; }
+    public User User { get; set; }
+    public Cafe Cafe { get; set; }
     public List<OrderProduct> OrderProducts { get; set; }
 }

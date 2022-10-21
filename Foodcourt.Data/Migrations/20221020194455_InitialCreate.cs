@@ -14,7 +14,8 @@ namespace Foodcourt.Data.Migrations
                 name: "Cafes",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
@@ -31,7 +32,7 @@ namespace Foodcourt.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductType",
+                name: "ProductTypes",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -40,11 +41,11 @@ namespace Foodcourt.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductType", x => x.Id);
+                    table.PrimaryKey("PK_ProductTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductVariant",
+                name: "ProductVariants",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -53,11 +54,11 @@ namespace Foodcourt.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductVariant", x => x.Id);
+                    table.PrimaryKey("PK_ProductVariants", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Role",
+                name: "Roles",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -66,14 +67,15 @@ namespace Foodcourt.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Role", x => x.Id);
+                    table.PrimaryKey("PK_Roles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
                     Phone = table.Column<string>(type: "text", nullable: false),
@@ -86,22 +88,23 @@ namespace Foodcourt.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Product",
+                name: "Products",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     Avatar = table.Column<string>(type: "text", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     Price = table.Column<double>(type: "double precision", nullable: false),
-                    CafeId = table.Column<Guid>(type: "uuid", nullable: false)
+                    CafeId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Product", x => x.Id);
+                    table.PrimaryKey("PK_Products", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Product_Cafes_CafeId",
+                        name: "FK_Products_Cafes_CafeId",
                         column: x => x.CafeId,
                         principalTable: "Cafes",
                         principalColumn: "Id",
@@ -109,18 +112,19 @@ namespace Foodcourt.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Basket",
+                name: "Baskets",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Status = table.Column<int>(type: "integer", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
+                    UserId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Basket", x => x.Id);
+                    table.PrimaryKey("PK_Baskets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Basket_Users_UserId",
+                        name: "FK_Baskets_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -131,8 +135,8 @@ namespace Foodcourt.Data.Migrations
                 name: "CafeUser",
                 columns: table => new
                 {
-                    CafesId = table.Column<Guid>(type: "uuid", nullable: false),
-                    UsersId = table.Column<Guid>(type: "uuid", nullable: false)
+                    CafesId = table.Column<long>(type: "bigint", nullable: false),
+                    UsersId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -162,8 +166,8 @@ namespace Foodcourt.Data.Migrations
                     TotalPrice = table.Column<int>(type: "integer", nullable: false),
                     CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Comment = table.Column<string>(type: "text", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CafeId = table.Column<Guid>(type: "uuid", nullable: false)
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
+                    CafeId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -187,15 +191,15 @@ namespace Foodcourt.Data.Migrations
                 columns: table => new
                 {
                     RolesId = table.Column<long>(type: "bigint", nullable: false),
-                    UsersId = table.Column<Guid>(type: "uuid", nullable: false)
+                    UsersId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RoleUser", x => new { x.RolesId, x.UsersId });
                     table.ForeignKey(
-                        name: "FK_RoleUser_Role_RolesId",
+                        name: "FK_RoleUser_Roles_RolesId",
                         column: x => x.RolesId,
-                        principalTable: "Role",
+                        principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -210,22 +214,22 @@ namespace Foodcourt.Data.Migrations
                 name: "ProductProductType",
                 columns: table => new
                 {
-                    ProductTypeId = table.Column<long>(type: "bigint", nullable: false),
-                    ProductsId = table.Column<Guid>(type: "uuid", nullable: false)
+                    ProductTypesId = table.Column<long>(type: "bigint", nullable: false),
+                    ProductsId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductProductType", x => new { x.ProductTypeId, x.ProductsId });
+                    table.PrimaryKey("PK_ProductProductType", x => new { x.ProductTypesId, x.ProductsId });
                     table.ForeignKey(
-                        name: "FK_ProductProductType_Product_ProductsId",
+                        name: "FK_ProductProductType_Products_ProductsId",
                         column: x => x.ProductsId,
-                        principalTable: "Product",
+                        principalTable: "Products",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ProductProductType_ProductType_ProductTypeId",
-                        column: x => x.ProductTypeId,
-                        principalTable: "ProductType",
+                        name: "FK_ProductProductType_ProductTypes_ProductTypesId",
+                        column: x => x.ProductTypesId,
+                        principalTable: "ProductTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -235,112 +239,114 @@ namespace Foodcourt.Data.Migrations
                 columns: table => new
                 {
                     ProductVariantsId = table.Column<long>(type: "bigint", nullable: false),
-                    ProductsId = table.Column<Guid>(type: "uuid", nullable: false)
+                    ProductsId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProductProductVariant", x => new { x.ProductVariantsId, x.ProductsId });
                     table.ForeignKey(
-                        name: "FK_ProductProductVariant_Product_ProductsId",
+                        name: "FK_ProductProductVariant_Products_ProductsId",
                         column: x => x.ProductsId,
-                        principalTable: "Product",
+                        principalTable: "Products",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ProductProductVariant_ProductVariant_ProductVariantsId",
+                        name: "FK_ProductProductVariant_ProductVariants_ProductVariantsId",
                         column: x => x.ProductVariantsId,
-                        principalTable: "ProductVariant",
+                        principalTable: "ProductVariants",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "BasketProduct",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Count = table.Column<int>(type: "integer", nullable: false),
-                    BasketId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProductVariantId = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BasketProduct", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_BasketProduct_Basket_BasketId",
-                        column: x => x.BasketId,
-                        principalTable: "Basket",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_BasketProduct_Product_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Product",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_BasketProduct_ProductVariant_ProductVariantId",
-                        column: x => x.ProductVariantId,
-                        principalTable: "ProductVariant",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "OrderProduct",
+                name: "BasketProducts",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Count = table.Column<int>(type: "integer", nullable: false),
-                    OrderId = table.Column<long>(type: "bigint", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProductVariantId = table.Column<long>(type: "bigint", nullable: false)
+                    ProductId = table.Column<long>(type: "bigint", nullable: false),
+                    ProductVariantId = table.Column<long>(type: "bigint", nullable: false),
+                    BasketId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OrderProduct", x => x.Id);
+                    table.PrimaryKey("PK_BasketProducts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_OrderProduct_Orders_OrderId",
+                        name: "FK_BasketProducts_Baskets_BasketId",
+                        column: x => x.BasketId,
+                        principalTable: "Baskets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BasketProducts_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BasketProducts_ProductVariants_ProductVariantId",
+                        column: x => x.ProductVariantId,
+                        principalTable: "ProductVariants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrderProducts",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    Count = table.Column<int>(type: "integer", nullable: false),
+                    ProductId = table.Column<long>(type: "bigint", nullable: false),
+                    ProductVariantId = table.Column<long>(type: "bigint", nullable: false),
+                    OrderId = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderProducts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OrderProducts_Orders_OrderId",
                         column: x => x.OrderId,
                         principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_OrderProduct_Product_ProductId",
+                        name: "FK_OrderProducts_Products_ProductId",
                         column: x => x.ProductId,
-                        principalTable: "Product",
+                        principalTable: "Products",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_OrderProduct_ProductVariant_ProductVariantId",
+                        name: "FK_OrderProducts_ProductVariants_ProductVariantId",
                         column: x => x.ProductVariantId,
-                        principalTable: "ProductVariant",
+                        principalTable: "ProductVariants",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Basket_UserId",
-                table: "Basket",
-                column: "UserId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BasketProduct_BasketId",
-                table: "BasketProduct",
+                name: "IX_BasketProducts_BasketId",
+                table: "BasketProducts",
                 column: "BasketId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BasketProduct_ProductId",
-                table: "BasketProduct",
-                column: "ProductId");
+                name: "IX_BasketProducts_ProductId",
+                table: "BasketProducts",
+                column: "ProductId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_BasketProduct_ProductVariantId",
-                table: "BasketProduct",
+                name: "IX_BasketProducts_ProductVariantId",
+                table: "BasketProducts",
                 column: "ProductVariantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Baskets_UserId",
+                table: "Baskets",
+                column: "UserId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_CafeUser_UsersId",
@@ -348,18 +354,19 @@ namespace Foodcourt.Data.Migrations
                 column: "UsersId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderProduct_OrderId",
-                table: "OrderProduct",
+                name: "IX_OrderProducts_OrderId",
+                table: "OrderProducts",
                 column: "OrderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderProduct_ProductId",
-                table: "OrderProduct",
-                column: "ProductId");
+                name: "IX_OrderProducts_ProductId",
+                table: "OrderProducts",
+                column: "ProductId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderProduct_ProductVariantId",
-                table: "OrderProduct",
+                name: "IX_OrderProducts_ProductVariantId",
+                table: "OrderProducts",
                 column: "ProductVariantId");
 
             migrationBuilder.CreateIndex(
@@ -373,11 +380,6 @@ namespace Foodcourt.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Product_CafeId",
-                table: "Product",
-                column: "CafeId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ProductProductType_ProductsId",
                 table: "ProductProductType",
                 column: "ProductsId");
@@ -388,6 +390,11 @@ namespace Foodcourt.Data.Migrations
                 column: "ProductsId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Products_CafeId",
+                table: "Products",
+                column: "CafeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RoleUser_UsersId",
                 table: "RoleUser",
                 column: "UsersId");
@@ -396,13 +403,13 @@ namespace Foodcourt.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "BasketProduct");
+                name: "BasketProducts");
 
             migrationBuilder.DropTable(
                 name: "CafeUser");
 
             migrationBuilder.DropTable(
-                name: "OrderProduct");
+                name: "OrderProducts");
 
             migrationBuilder.DropTable(
                 name: "ProductProductType");
@@ -414,22 +421,22 @@ namespace Foodcourt.Data.Migrations
                 name: "RoleUser");
 
             migrationBuilder.DropTable(
-                name: "Basket");
+                name: "Baskets");
 
             migrationBuilder.DropTable(
                 name: "Orders");
 
             migrationBuilder.DropTable(
-                name: "ProductType");
+                name: "ProductTypes");
 
             migrationBuilder.DropTable(
-                name: "Product");
+                name: "Products");
 
             migrationBuilder.DropTable(
-                name: "ProductVariant");
+                name: "ProductVariants");
 
             migrationBuilder.DropTable(
-                name: "Role");
+                name: "Roles");
 
             migrationBuilder.DropTable(
                 name: "Users");
