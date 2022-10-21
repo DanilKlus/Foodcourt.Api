@@ -4,6 +4,7 @@ using Foodcourt.Data.Api;
 using Foodcourt.Data.Api.Entities.Cafes;
 using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
+using Foodcourt.Data.Api.Response.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Foodcourt.Api.Controllers
@@ -14,34 +15,35 @@ namespace Foodcourt.Api.Controllers
     [Route("v1.0/[controller]")]
     public class CafesController : ControllerBase
     {
-        private readonly ICafeService cafeService;
-
-        public CafesController(ICafeService cafeService)
-        {
-            this.cafeService = cafeService;
-        }
+        private readonly ICafeService _cafeService;
+        public CafesController(ICafeService cafeService) => 
+            _cafeService = cafeService;
 
         [HttpGet]
         [ProducesResponseType(typeof(SearchResponse<CafeSearchResponse>), StatusCodes.Status200OK)]
         public async Task<ActionResult> SearchCafes([FromQuery]CafeSearchRequest request)
         {
-            var response = await cafeService.SearchByQuery(request);
+            var response = await _cafeService.SearchByQuery(request);
             return Ok(response);
         }
         
         [HttpGet("{cafeId:long}")]
         [ProducesResponseType(typeof(CafeSearchResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(NotFoundException), StatusCodes.Status404NotFound)]
         public async Task<ActionResult> GetCafe(long cafeId)
         {
-            var response = await cafeService.Get(cafeId);
-            return Ok(response);
+            try {
+                var response = await _cafeService.Get(cafeId);
+                return Ok(response);
+            }
+            catch (NotFoundException e) { return NotFound(e); }
         }
         
         [HttpGet("{cafeId:long}/products")]
         [ProducesResponseType(typeof(SearchResponse<Product>), StatusCodes.Status200OK)]
         public async Task<ActionResult> GetCafeProducts(long cafeId)
         {
-            var response = await cafeService.GetProducts(cafeId);
+            var response = await _cafeService.GetProducts(cafeId);
             return Ok(response);
         }
         
@@ -49,8 +51,11 @@ namespace Foodcourt.Api.Controllers
         [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
         public async Task<ActionResult> GetCafeProducts(long cafeId, long productId)
         {
-            var response = await cafeService.GetProduct(cafeId, productId);
-            return Ok(response);
+            try {
+                var response = await _cafeService.GetProduct(cafeId, productId);
+                return Ok(response);
+            }
+            catch (NotFoundException e) { return NotFound(e); }
         }
     }
 }
