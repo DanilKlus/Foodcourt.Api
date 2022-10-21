@@ -2,7 +2,6 @@
 using Foodcourt.BusinessLogic.Extensions;
 using Foodcourt.Data;
 using Foodcourt.Data.Api;
-using Foodcourt.Data.Api.Entities.Cafes;
 using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
 using Foodcourt.Data.Api.Response.Exceptions;

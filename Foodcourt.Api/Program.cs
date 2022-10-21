@@ -1,42 +1,18 @@
-using Foodcourt.Api.DI;
-using Microsoft.EntityFrameworkCore;
-using Foodcourt.Data;
-
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
-builder.Services.AddDbContext<DataContext>(options => 
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services
-    .AddRouting(o => o.LowercaseUrls = true)
-    .AddControllers()
-    .ConfigureJson();
-
-builder.Services
-    .AddSystemServices();
-
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerDocument();
-
-var app = builder.Build();
-app
-    .UsePathBase("/api")
-    .UseRouting()
-    .UseEndpoints(endpoints => endpoints.MapControllers());
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+namespace Foodcourt.Api
 {
-    app.UseSwagger();
-    app.UseSwaggerUi3();
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+    }
 }
-app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
