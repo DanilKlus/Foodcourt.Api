@@ -12,9 +12,8 @@ public class Order
     public DateTime CreationTime { get; set; }
     public string Comment { get; set; }
     
-    public long UserId { get; set; }
-    public long CafeId { get; set; }
-    public User User { get; set; }
+    
+    public AppUser AppUser { get; set; }
     public Cafe Cafe { get; set; }
     public List<OrderProduct> OrderProducts { get; set; }
 }

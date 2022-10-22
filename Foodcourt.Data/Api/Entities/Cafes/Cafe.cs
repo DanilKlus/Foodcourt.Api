@@ -16,7 +16,7 @@ public class Cafe
     public List<Order> Orders { get; set; }
     public List<Product> Products { get; set; }
     
-    public virtual List<User> Users { get; set; } 
+    public virtual List<AppUser> AppUsers { get; set; } 
     
     public string CertifyingDocument { get; set; }
     public string Response { get; set; }

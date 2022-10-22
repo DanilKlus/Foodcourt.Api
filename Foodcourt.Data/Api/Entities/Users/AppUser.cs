@@ -1,18 +1,16 @@
 ﻿using Foodcourt.Data.Api.Entities.Cafes;
 using Foodcourt.Data.Api.Entities.Orders;
+using Microsoft.AspNetCore.Identity;
 
 namespace Foodcourt.Data.Api.Entities.Users;
 
-public class User
+public class AppUser : IdentityUser
 {
-    public long Id { get; set; }
     public string Name { get; set; }
-    public string Email { get; set; }
-    public string Phone { get; set; }
     public string Password { get; set; }
     public bool IsActive { get; set; }
     
-    public virtual Basket Basket { get; set; } 
+    public Basket Basket { get; set; } 
     
     public List<Order> Orders { get; set; }
     

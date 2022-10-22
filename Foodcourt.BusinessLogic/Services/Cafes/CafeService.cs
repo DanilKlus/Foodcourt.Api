@@ -11,8 +11,8 @@ namespace Foodcourt.BusinessLogic.Services.Cafes;
 
 public class CafeService : ICafeService
 {
-    private readonly DataContext _dataContext;
-    public CafeService(DataContext dataContext) => 
+    private readonly AppDataContext _dataContext;
+    public CafeService(AppDataContext dataContext) => 
         _dataContext = dataContext;
 
     public async Task<SearchResponse<CafeResponse>> SearchByQuery(CafeSearchRequest cafeSearch)
