@@ -25,7 +25,7 @@ public class CafeService : ICafeService
     {
         var cafe = await _dataContext.Cafes.FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));
         if (cafe == null)
-            throw new NotFoundException(HttpStatusCode.NotFound, $"Cafe with id = {cafeId} not found");
+            throw new NotFoundException(HttpStatusCode.NotFound, $"Cafe with id '{cafeId}' not found");
         return cafe.ToEntity();
     }
 
@@ -41,7 +41,7 @@ public class CafeService : ICafeService
             .Include(p => p.ProductTypes)
             .FirstOrDefaultAsync(product => product.Id == productId);
         if (product == null) 
-            throw new NotFoundException(HttpStatusCode.NotFound, $"Product with id = {productId} in cafe with id = {cafeId} not found");
+            throw new NotFoundException(HttpStatusCode.NotFound, $"Product with id '{productId}' in cafe with id '{cafeId}' not found");
         return product.ToEntity();
     }
 }

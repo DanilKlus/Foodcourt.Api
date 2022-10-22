@@ -9,7 +9,6 @@ using UserRegisterRequest = Foodcourt.Data.Api.Request.UserRegisterRequest;
 
 namespace Foodcourt.Api.Controllers
 {
-    //[Authorize]
     [ApiController]
     [Produces(MediaTypeNames.Application.Json)]
     [Route("v1.0/[controller]")]
@@ -23,10 +22,23 @@ namespace Foodcourt.Api.Controllers
         [ProducesResponseType(typeof(UserRegisterRequest), StatusCodes.Status200OK)]
         public async Task<ActionResult> Register([FromBody] UserRegisterRequest registerRequest)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid) 
                 return BadRequest();
             var result = await _userService.RegisterUserAsync(registerRequest);
             return Ok(result);
+        }
+        
+        [HttpPost("login")]
+        [ProducesResponseType(typeof(UserRegisterRequest), StatusCodes.Status200OK)]
+        public async Task<ActionResult> Login([FromBody] UserLoginRequest loginRequest)
+        {
+            if (!ModelState.IsValid) return BadRequest();
+            
+            var result = await _userService.LoginUserAsync(loginRequest);
+            if (result.IsSuccess)
+                return Ok(result);
+            
+            return BadRequest(result);
         }
     }
 }
