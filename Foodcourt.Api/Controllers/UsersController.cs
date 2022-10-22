@@ -5,6 +5,7 @@ using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
 using Foodcourt.Data.Api.Response.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using UserRegisterRequest = Foodcourt.Data.Api.Request.UserRegisterRequest;
 
 namespace Foodcourt.Api.Controllers
 {
@@ -19,12 +20,12 @@ namespace Foodcourt.Api.Controllers
             _userService = userService;
 
         [HttpPost("register")]
-        [ProducesResponseType(typeof(CreateUserRequest), StatusCodes.Status200OK)]
-        public async Task<ActionResult> Register([FromBody] CreateUserRequest request)
+        [ProducesResponseType(typeof(UserRegisterRequest), StatusCodes.Status200OK)]
+        public async Task<ActionResult> Register([FromBody] UserRegisterRequest registerRequest)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
-            var result = await _userService.RegisterUserAsync(request);
+            var result = await _userService.RegisterUserAsync(registerRequest);
             return Ok(result);
         }
     }

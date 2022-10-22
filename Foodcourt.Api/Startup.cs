@@ -40,10 +40,10 @@ namespace Foodcourt.Api
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
-                    ValidAudience = "http://foodcourt.com",
-                    ValidIssuer = "http://foodcourt.com",
+                    ValidAudience = Configuration["AuthSettings:Audience"],
+                    ValidIssuer = Configuration["AuthSettings:Issuer"],
                     RequireExpirationTime = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Secret key")),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AuthSettings:Key"])),
                     ValidateIssuerSigningKey = true
                 };
             });

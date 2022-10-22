@@ -2,7 +2,7 @@
 
 namespace Foodcourt.Data.Api.Request;
 
-public class CreateUserRequest
+public class UserRegisterRequest
 {
     [Required]
     [EmailAddress]

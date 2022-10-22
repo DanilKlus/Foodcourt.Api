@@ -3,6 +3,7 @@ using Foodcourt.Data.Api.Entities.Users;
 using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
 using Microsoft.AspNetCore.Identity;
+using UserRegisterRequest = Foodcourt.Data.Api.Request.UserRegisterRequest;
 
 namespace Foodcourt.BusinessLogic.Services.Cafes;
 
@@ -13,27 +14,27 @@ public class UserService : IUserService
         _userManager = userManager;
 
 
-    public async Task<UserCreateResponse> RegisterUserAsync(CreateUserRequest userRequest)
+    public async Task<UserRegisterResponse> RegisterUserAsync(UserRegisterRequest userRegisterRequest)
     {
-        if (userRequest == null)
+        if (userRegisterRequest == null)
             throw new NullReferenceException("Request is null");
         var identityUser = new AppUser()
         {
-            Email = userRequest.Email,
-            UserName = userRequest.Email,
-            PhoneNumber = userRequest.Phone,
-            Name = userRequest.Name
+            Email = userRegisterRequest.Email,
+            UserName = userRegisterRequest.Email,
+            PhoneNumber = userRegisterRequest.Phone,
+            Name = userRegisterRequest.Name
         };
 
-        var result = await _userManager.CreateAsync(identityUser, userRequest.Password);
+        var result = await _userManager.CreateAsync(identityUser, userRegisterRequest.Password);
         if (result.Succeeded)
-            return new UserCreateResponse
+            return new UserRegisterResponse
             {
                 //TODO: confirm email and create basket 
                 Message = "User created successfully",
                 IsSuccess = true
             };
-        return new UserCreateResponse
+        return new UserRegisterResponse
         {
             Message = "User did not created",
             IsSuccess = false,
