@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Foodcourt.Data.Migrations
 {
     [DbContext(typeof(AppDataContext))]
-    [Migration("20221022194012_InitialCreate")]
+    [Migration("20221022210851_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,21 +37,6 @@ namespace Foodcourt.Data.Migrations
                     b.HasIndex("CafesId");
 
                     b.ToTable("AppUserCafe");
-                });
-
-            modelBuilder.Entity("AppUserRole", b =>
-                {
-                    b.Property<string>("AppUsersId")
-                        .HasColumnType("text");
-
-                    b.Property<long>("RolesId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("AppUsersId", "RolesId");
-
-                    b.HasIndex("RolesId");
-
-                    b.ToTable("AppUserRole");
                 });
 
             modelBuilder.Entity("Foodcourt.Data.Api.Entities.Cafes.Cafe", b =>
@@ -250,7 +235,7 @@ namespace Foodcourt.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("AppBUserId")
+                    b.Property<long>("AppUserId")
                         .HasColumnType("bigint");
 
                     b.Property<int>("Status")
@@ -291,23 +276,6 @@ namespace Foodcourt.Data.Migrations
                     b.HasIndex("ProductVariantId");
 
                     b.ToTable("BasketProducts");
-                });
-
-            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Users.Role", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Role");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -546,9 +514,6 @@ namespace Foodcourt.Data.Migrations
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
-                    b.Property<long>("BasketId")
-                        .HasColumnType("bigint");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -559,8 +524,6 @@ namespace Foodcourt.Data.Migrations
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.HasIndex("BasketId");
 
                     b.HasDiscriminator().HasValue("AppUser");
                 });
@@ -576,21 +539,6 @@ namespace Foodcourt.Data.Migrations
                     b.HasOne("Foodcourt.Data.Api.Entities.Cafes.Cafe", null)
                         .WithMany()
                         .HasForeignKey("CafesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("AppUserRole", b =>
-                {
-                    b.HasOne("Foodcourt.Data.Api.Entities.Users.AppUser", null)
-                        .WithMany()
-                        .HasForeignKey("AppUsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Foodcourt.Data.Api.Entities.Users.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RolesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -756,17 +704,6 @@ namespace Foodcourt.Data.Migrations
                         .HasForeignKey("ProductsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Foodcourt.Data.Api.Entities.Users.AppUser", b =>
-                {
-                    b.HasOne("Foodcourt.Data.Api.Entities.Users.Basket", "Basket")
-                        .WithMany()
-                        .HasForeignKey("BasketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Basket");
                 });
 
             modelBuilder.Entity("Foodcourt.Data.Api.Entities.Cafes.Cafe", b =>

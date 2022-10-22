@@ -4,11 +4,12 @@ using Foodcourt.Data.Api;
 using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
 using Foodcourt.Data.Api.Response.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Foodcourt.Api.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Produces(MediaTypeNames.Application.Json)]
     [Route("v1.0/[controller]")]
@@ -32,7 +33,7 @@ namespace Foodcourt.Api.Controllers
         public async Task<ActionResult> GetCafe(long cafeId)
         {
             try {
-                var response = await _cafeService.Get(cafeId);
+                var response = await _cafeService.GetAsync(cafeId);
                 return Ok(response);
             }
             catch (NotFoundException e) { return NotFound(e); }
@@ -42,7 +43,7 @@ namespace Foodcourt.Api.Controllers
         [ProducesResponseType(typeof(SearchResponse<ProductResponse>), StatusCodes.Status200OK)]
         public async Task<ActionResult> GetCafeProducts(long cafeId)
         {
-            var response = await _cafeService.GetProducts(cafeId);
+            var response = await _cafeService.GetProductsAsync(cafeId);
             return Ok(response);
         }
         
@@ -51,7 +52,7 @@ namespace Foodcourt.Api.Controllers
         public async Task<ActionResult> GetCafeProducts(long cafeId, long productId)
         {
             try {
-                var response = await _cafeService.GetProduct(cafeId, productId);
+                var response = await _cafeService.GetProductAsync(cafeId, productId);
                 return Ok(response);
             }
             catch (NotFoundException e) { return NotFound(e); }

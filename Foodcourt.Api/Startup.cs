@@ -24,7 +24,7 @@ namespace Foodcourt.Api
             services.AddDbContext<AppDataContext>(options =>
             {
                 var builder = new NpgsqlDbContextOptionsBuilder(options);
-                builder.SetPostgresVersion(new Version(9, 6));
+                builder.SetPostgresVersion(new Version(9, 2));
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
             });
 
@@ -33,7 +33,7 @@ namespace Foodcourt.Api
             services.AddAuthentication(auth =>
             {
                 auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -68,8 +68,8 @@ namespace Foodcourt.Api
 
             app.UseRouting();
 
-            // app.UseAuthentication();
-            // app.UseAuthorization();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

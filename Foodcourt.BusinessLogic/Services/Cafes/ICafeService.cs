@@ -8,7 +8,7 @@ namespace Foodcourt.BusinessLogic.Services.Cafes;
 public interface ICafeService
 {
     Task<SearchResponse<CafeResponse>> SearchByQuery(CafeSearchRequest cafeSearch);
-    Task<CafeResponse> Get(long cafeId);
-    Task<SearchResponse<ProductResponse>> GetProducts(long cafeId);
-    Task<ProductResponse> GetProduct(long cafeId, long productId);
+    Task<CafeResponse> GetAsync(long cafeId);
+    Task<SearchResponse<ProductResponse>> GetProductsAsync(long cafeId);
+    Task<ProductResponse> GetProductAsync(long cafeId, long productId);
 }

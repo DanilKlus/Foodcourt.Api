@@ -21,7 +21,7 @@ public class CafeService : ICafeService
         return new SearchResponse<CafeResponse>(cafes.ToList().Select(cafe => cafe.ToEntity()).ToList(), cafes.Count);
     }
 
-    public async Task<CafeResponse> Get(long cafeId)
+    public async Task<CafeResponse> GetAsync(long cafeId)
     {
         var cafe = await _dataContext.Cafes.FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));
         if (cafe == null)
@@ -29,13 +29,13 @@ public class CafeService : ICafeService
         return cafe.ToEntity();
     }
 
-    public async Task<SearchResponse<ProductResponse>> GetProducts(long cafeId)
+    public async Task<SearchResponse<ProductResponse>> GetProductsAsync(long cafeId)
     {
         var products = await _dataContext.Products.Where(product => Equals(product.CafeId, cafeId)).ToListAsync();
         return new SearchResponse<ProductResponse>(products.Select(product => product.ToEntity()).ToList(), products.Count);
     }
 
-    public async Task<ProductResponse> GetProduct(long cafeId, long productId)
+    public async Task<ProductResponse> GetProductAsync(long cafeId, long productId)
     {
         var product = await _dataContext.Products
             .Include(p => p.ProductTypes)
