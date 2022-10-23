@@ -1,23 +1,27 @@
 ﻿using System.Net.Mime;
-using Foodcourt.BusinessLogic.Services.Cafes;
+using Foodcourt.BusinessLogic.Services.Users;
 using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Foodcourt.Api.Controllers
 {
     [ApiController]
+    [AllowAnonymous]
     [Produces(MediaTypeNames.Application.Json)]
     [Route("v1.0/[controller]")]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
         private readonly SignInManager<IdentityUser> _signInManager;
-        public UsersController(IUserService userService, SignInManager<IdentityUser> signInManager)
+        private readonly UserManager<IdentityUser> _userManager;
+        public UsersController(IUserService userService, SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager)
         {
             _userService = userService;
             _signInManager = signInManager;
+            _userManager = userManager;
         }
 
         [HttpPost("register")]
@@ -41,6 +45,23 @@ namespace Foodcourt.Api.Controllers
                 return Ok(result);
             
             return BadRequest(result);
+        }
+        
+        [HttpPost("token/refresh")]
+        [ProducesResponseType(typeof(UserManagerResponse), StatusCodes.Status200OK)]
+        public async Task<ActionResult> RefreshLogin([FromBody] RefreshTokenRequest refreshRequest)
+        {
+            if (!ModelState.IsValid) return BadRequest();
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return BadRequest("User does not have ID");
+
+            var result = await _userService.RefreshLoginAsync(refreshRequest.RefreshToken, userId);
+            if (result.IsSuccess)
+                return Ok(result);
+        
+            return BadRequest(result);
+            
         }
         
         // [HttpPost]

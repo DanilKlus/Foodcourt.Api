@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Foodcourt.Api.DI;
 using Foodcourt.Data;
+using Foodcourt.Data.Api.Entities.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -28,8 +29,10 @@ namespace Foodcourt.Api
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
             });
 
-            services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppDataContext>().AddDefaultTokenProviders();
-
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<AppDataContext>()
+                .AddDefaultTokenProviders()
+                .AddTokenProvider(Configuration["AuthSettings:ApiTokenProvider"], typeof(DataProtectorTokenProvider<IdentityUser>));
             services.AddAuthentication(auth =>
             {
                 auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -49,7 +52,7 @@ namespace Foodcourt.Api
                     RequireExpirationTime = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AuthSettings:Key"])),
                     ValidateIssuerSigningKey = true
-                }; 
+                };
                 // options.Events = new JwtBearerEvents
                 // {
                 //     OnAuthenticationFailed = context =>

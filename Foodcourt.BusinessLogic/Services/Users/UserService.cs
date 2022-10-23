@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Foodcourt.BusinessLogic.Services.Cafes;
+namespace Foodcourt.BusinessLogic.Services.Users;
 
 public class UserService : IUserService
 {
@@ -58,7 +58,6 @@ public class UserService : IUserService
                 Message = $"User with email '{userRequest.Email}' not found",
                 IsSuccess = false
             };
-        
         var result = await _userManager.CheckPasswordAsync(user, userRequest.Password);
         if (!result)
             return new UserManagerResponse
@@ -75,6 +74,56 @@ public class UserService : IUserService
         var userRoles = await _userManager.GetRolesAsync(user);
         foreach (var userRole in userRoles)
             claims.Add(new Claim("roles", userRole));
+
+        var token = GenerateAccessToken(claims);
+        var refreshToken = await GenerateRefreshToken(user);
+        var tokenAsString = new JwtSecurityTokenHandler().WriteToken(token);
+        return new UserLoginResponse
+        {
+            Message = "User has been successfully authenticated",
+            IsSuccess = true,
+            AcssessToken = tokenAsString,
+            RefreshToken = refreshToken,
+            ExpireDate = token.ValidTo
+        }; 
+    }
+
+    public async Task<UserManagerResponse> RefreshLoginAsync(string refreshToken, string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+            return new UserManagerResponse
+            {
+                Message = $"User with id '{userId}' not found",
+                IsSuccess = false
+            };
+        var result = await _userManager.VerifyUserTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"], "RefreshToken", refreshToken);
+        if (!result)
+            return new UserManagerResponse
+            {
+                Message = "Refresh token not valid",
+                IsSuccess = false
+            };
+
+        var claims = await _userManager.GetClaimsAsync(user);
+        var token = GenerateAccessToken(claims);
+        var newRefreshToken = await GenerateRefreshToken(user);
+        var tokenAsString = new JwtSecurityTokenHandler().WriteToken(token);
+        return new UserLoginResponse
+        {
+            Message = "Token successfully refreshed",
+            IsSuccess = true,
+            AcssessToken = tokenAsString,
+            RefreshToken = newRefreshToken,
+            ExpireDate = token.ValidTo
+        }; 
+    }
+
+    
+    
+    
+    private SecurityToken GenerateAccessToken(IEnumerable<Claim> claims)
+    {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AuthSettings:Key"]));
         var token = new JwtSecurityToken(
             issuer: _configuration["AuthSettings:Issuer"],
@@ -82,15 +131,15 @@ public class UserService : IUserService
             claims: claims,
             expires: DateTime.Now.AddDays(Convert.ToDouble(_configuration["AuthSettings:TokenLifeDays"])),
             signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256));
-        var tokenAsString = new JwtSecurityTokenHandler().WriteToken(token);
-        
-        return new UserLoginResponse
-        {
-            Message = "User has been successfully authenticated",
-            IsSuccess = true,
-            AcssessToken = tokenAsString,
-            RefreshToken = "not implented",
-            ExpireDate = token.ValidTo
-        }; 
+        return token;
+    }
+
+    private async Task<string> GenerateRefreshToken(IdentityUser user)
+    {
+        //TODO: set expiration date 
+        var newRefreshToken = await _userManager.GenerateUserTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"], "RefreshToken");
+        await _userManager.RemoveAuthenticationTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"], "RefreshToken");
+        await _userManager.SetAuthenticationTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"], "RefreshToken", newRefreshToken);
+        return newRefreshToken;
     }
 }

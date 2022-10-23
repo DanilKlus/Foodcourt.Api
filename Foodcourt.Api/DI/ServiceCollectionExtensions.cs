@@ -1,4 +1,5 @@
 ﻿using Foodcourt.BusinessLogic.Services.Cafes;
+using Foodcourt.BusinessLogic.Services.Users;
 
 namespace Foodcourt.Api.DI
 {
