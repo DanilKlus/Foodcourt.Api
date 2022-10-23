@@ -1,9 +1,8 @@
 ﻿using System.Net.Mime;
 using Foodcourt.BusinessLogic.Services.Cafes;
-using Foodcourt.Data.Api;
 using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
-using Foodcourt.Data.Api.Response.Exceptions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UserRegisterRequest = Foodcourt.Data.Api.Request.UserRegisterRequest;
 
@@ -15,11 +14,15 @@ namespace Foodcourt.Api.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
-        public UsersController(IUserService userService) => 
+        private readonly SignInManager<IdentityUser> _signInManager;
+        public UsersController(IUserService userService, SignInManager<IdentityUser> signInManager)
+        {
             _userService = userService;
+            _signInManager = signInManager;
+        }
 
         [HttpPost("register")]
-        [ProducesResponseType(typeof(UserRegisterRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UserManagerResponse), StatusCodes.Status200OK)]
         public async Task<ActionResult> Register([FromBody] UserRegisterRequest registerRequest)
         {
             if (!ModelState.IsValid) 
@@ -29,7 +32,7 @@ namespace Foodcourt.Api.Controllers
         }
         
         [HttpPost("login")]
-        [ProducesResponseType(typeof(UserRegisterRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UserManagerResponse), StatusCodes.Status200OK)]
         public async Task<ActionResult> Login([FromBody] UserLoginRequest loginRequest)
         {
             if (!ModelState.IsValid) return BadRequest();
@@ -40,5 +43,16 @@ namespace Foodcourt.Api.Controllers
             
             return BadRequest(result);
         }
+        
+        // [HttpPost]
+        // [AllowAnonymous]
+        // [Route("account/external-login")]
+        // public IActionResult ExternalLogin(string provider, string returnUrl)
+        // {
+        //     var redirectUrl = $"https://localhost:7003/v1.0/cafes";
+        //     var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+        //     properties.AllowRefresh = true;
+        //     return Challenge(properties, provider);
+        // }
     }
 }

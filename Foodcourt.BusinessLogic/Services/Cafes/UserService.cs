@@ -67,11 +67,14 @@ public class UserService : IUserService
                 IsSuccess = false
             };
         
-        var claims = new[]
+        var claims = new List<Claim>
         {
-            new Claim("email", userRequest.Email),
-            new Claim("sub", user.Id)
+            new("email", userRequest.Email),
+            new("sub", user.Id),
         };
+        var userRoles = await _userManager.GetRolesAsync(user);
+        foreach (var userRole in userRoles)
+            claims.Add(new Claim(ClaimTypes.Role, userRole));
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AuthSettings:Key"]));
         var token = new JwtSecurityToken(
             issuer: _configuration["AuthSettings:Issuer"],
@@ -81,10 +84,12 @@ public class UserService : IUserService
             signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256));
         var tokenAsString = new JwtSecurityTokenHandler().WriteToken(token);
         
-        return new UserManagerResponse
+        return new UserLoginResponse
         {
-            Message = tokenAsString,
+            Message = "User has been successfully authenticated",
             IsSuccess = true,
+            AcssessToken = tokenAsString,
+            RefreshToken = "not implented",
             ExpireDate = token.ValidTo
         }; 
     }

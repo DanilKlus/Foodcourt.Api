@@ -34,8 +34,12 @@ namespace Foodcourt.Api
             {
                 auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
+            })
+                // .AddCookie()
+                .AddJwtBearer(options =>
             {
+                // options.RequireHttpsMetadata = true;
+                // options.SaveToken = true;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -45,8 +49,33 @@ namespace Foodcourt.Api
                     RequireExpirationTime = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AuthSettings:Key"])),
                     ValidateIssuerSigningKey = true
-                };
-            });
+                }; 
+                // options.Events = new JwtBearerEvents
+                // {
+                //     OnAuthenticationFailed = context =>
+                //     {
+                //         if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                //         {
+                //             context.Response.Headers.Add("Token-Expired", "true");
+                //         }
+                //         return Task.CompletedTask;
+                //     }
+                // };
+            })
+                // .AddGoogle(options =>
+                // {
+                //
+                //     options.ClientId = "637404875357-rtn0bvhr0bkbikunu24tk12le0o40h2u.apps.googleusercontent.com";
+                //     options.ClientSecret = "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";
+                // })
+                ;
+            
+            // services.Configure<CookiePolicyOptions>(options =>
+            // {
+            //     // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+            //     options.CheckConsentNeeded = context => true;
+            //     options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
+            // });
             
             services.AddControllers()
                 .ConfigureJson();
