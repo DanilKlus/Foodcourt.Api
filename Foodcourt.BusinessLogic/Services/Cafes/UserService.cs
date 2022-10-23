@@ -25,15 +25,15 @@ public class UserService : IUserService
     {
         if (userRequest == null)
             throw new NullReferenceException("Request is null");
-        var identityUser = new AppUser()
+        var appUser = new AppUser()
         {
             Email = userRequest.Email,
             UserName = userRequest.Email,
             PhoneNumber = userRequest.Phone,
             Name = userRequest.Name
         };
-
-        var result = await _userManager.CreateAsync(identityUser, userRequest.Password);
+        var result = await _userManager.CreateAsync(appUser, userRequest.Password);
+        await _userManager.AddToRoleAsync(appUser, _configuration["AuthSettings:DefaultUserRole"]);
         if (result.Succeeded)
             return new UserManagerResponse
             {
@@ -74,7 +74,7 @@ public class UserService : IUserService
         };
         var userRoles = await _userManager.GetRolesAsync(user);
         foreach (var userRole in userRoles)
-            claims.Add(new Claim(ClaimTypes.Role, userRole));
+            claims.Add(new Claim("roles", userRole));
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AuthSettings:Key"]));
         var token = new JwtSecurityToken(
             issuer: _configuration["AuthSettings:Issuer"],

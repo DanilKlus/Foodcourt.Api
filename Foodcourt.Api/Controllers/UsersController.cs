@@ -4,7 +4,6 @@ using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using UserRegisterRequest = Foodcourt.Data.Api.Request.UserRegisterRequest;
 
 namespace Foodcourt.Api.Controllers
 {

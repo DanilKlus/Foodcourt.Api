@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Foodcourt.Api.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "user")]
     [ApiController]
     [Produces(MediaTypeNames.Application.Json)]
     [Route("v1.0/[controller]")]
