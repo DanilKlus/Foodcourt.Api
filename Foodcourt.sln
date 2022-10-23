@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Foodcourt.Data", "Foodcourt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Foodcourt.BusinessLogic", "Foodcourt.BusinessLogic\Foodcourt.BusinessLogic.csproj", "{4DC5D2A0-555C-4B1E-8D45-EB78CBAA7D08}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{C92EABDB-18AD-4A26-A1CC-D1F258B5B062}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

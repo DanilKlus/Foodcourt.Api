@@ -72,7 +72,8 @@ namespace Foodcourt.Api.Controllers
         [Route("account/external-login")]
         public IActionResult ExternalLogin(string provider, string returnUrl)
         {
-            var redirectUrl = $"https://localhost:7003/v1.0/users/account/external-auth-callback?returnUrl={returnUrl}";
+            //TODO: move to configs
+            var redirectUrl = $"https://localhost:7777/v1.0/users/account/external-auth-callback?returnUrl={returnUrl}";
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             properties.AllowRefresh = true;
             return Challenge(properties, provider);

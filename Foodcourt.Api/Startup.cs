@@ -85,7 +85,7 @@ namespace Foodcourt.Api
 
             services.AddControllers()
                 .ConfigureJson();
-
+            services.AddSwaggerDocument(doc => doc.Title = "Foodcourt.Api");
             services.AddSystemServices();
         }
 
@@ -94,14 +94,16 @@ namespace Foodcourt.Api
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage()
-                    .UseSwagger()
-                    .UseSwaggerUi3();
+                app.UseDeveloperExceptionPage();
+
             }
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
+                app.UseOpenApi()
+                    .UseSwagger()
+                    .UseSwaggerUi3();
 
             app.UseAuthentication();
             app.UseAuthorization();
