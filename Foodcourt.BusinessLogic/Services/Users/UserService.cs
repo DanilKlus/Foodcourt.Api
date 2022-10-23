@@ -14,10 +14,14 @@ public class UserService : IUserService
 {
     private readonly UserManager<IdentityUser> _userManager;
     private readonly IConfiguration _configuration;
-    public UserService(UserManager<IdentityUser> userManager, IConfiguration configuration)
+    private readonly SignInManager<IdentityUser> _signInManager;
+
+    public UserService(UserManager<IdentityUser> userManager, IConfiguration configuration,
+        SignInManager<IdentityUser> signInManager)
     {
         _userManager = userManager;
         _configuration = configuration;
+        _signInManager = signInManager;
     }
 
 
@@ -65,17 +69,9 @@ public class UserService : IUserService
                 Message = "Invalid password",
                 IsSuccess = false
             };
-        
-        var claims = new List<Claim>
-        {
-            new("email", userRequest.Email),
-            new("sub", user.Id),
-        };
-        var userRoles = await _userManager.GetRolesAsync(user);
-        foreach (var userRole in userRoles)
-            claims.Add(new Claim("roles", userRole));
 
-        var token = GenerateAccessToken(claims);
+        var claims = new List<Claim>();
+        var token = await GenerateAccessToken(user, claims);
         var refreshToken = await GenerateRefreshToken(user);
         var tokenAsString = new JwtSecurityTokenHandler().WriteToken(token);
         return new UserLoginResponse
@@ -85,7 +81,7 @@ public class UserService : IUserService
             AcssessToken = tokenAsString,
             RefreshToken = refreshToken,
             ExpireDate = token.ValidTo
-        }; 
+        };
     }
 
     public async Task<UserManagerResponse> RefreshLoginAsync(string refreshToken, string userId)
@@ -97,7 +93,8 @@ public class UserService : IUserService
                 Message = $"User with id '{userId}' not found",
                 IsSuccess = false
             };
-        var result = await _userManager.VerifyUserTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"], "RefreshToken", refreshToken);
+        var result = await _userManager.VerifyUserTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"],
+            "RefreshToken", refreshToken);
         if (!result)
             return new UserManagerResponse
             {
@@ -106,7 +103,7 @@ public class UserService : IUserService
             };
 
         var claims = await _userManager.GetClaimsAsync(user);
-        var token = GenerateAccessToken(claims);
+        var token = await GenerateAccessToken(user, claims);
         var newRefreshToken = await GenerateRefreshToken(user);
         var tokenAsString = new JwtSecurityTokenHandler().WriteToken(token);
         return new UserLoginResponse
@@ -116,14 +113,18 @@ public class UserService : IUserService
             AcssessToken = tokenAsString,
             RefreshToken = newRefreshToken,
             ExpireDate = token.ValidTo
-        }; 
+        };
     }
 
-    
-    
-    
-    private SecurityToken GenerateAccessToken(IEnumerable<Claim> claims)
+
+    private async Task<JwtSecurityToken> GenerateAccessToken(IdentityUser user, ICollection<Claim> claims)
     {
+        claims.Add(new("email", user.Email));
+        claims.Add(new("sub", user.Id));
+        var userRoles = await _userManager.GetRolesAsync(user);
+        foreach (var userRole in userRoles)
+            claims.Add(new Claim("roles", userRole));
+        
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AuthSettings:Key"]));
         var token = new JwtSecurityToken(
             issuer: _configuration["AuthSettings:Issuer"],
@@ -137,9 +138,77 @@ public class UserService : IUserService
     private async Task<string> GenerateRefreshToken(IdentityUser user)
     {
         //TODO: set expiration date 
-        var newRefreshToken = await _userManager.GenerateUserTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"], "RefreshToken");
-        await _userManager.RemoveAuthenticationTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"], "RefreshToken");
-        await _userManager.SetAuthenticationTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"], "RefreshToken", newRefreshToken);
+        var newRefreshToken =
+            await _userManager.GenerateUserTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"],
+                "RefreshToken");
+        await _userManager.RemoveAuthenticationTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"],
+            "RefreshToken");
+        await _userManager.SetAuthenticationTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"],
+            "RefreshToken", newRefreshToken);
         return newRefreshToken;
+    }
+
+
+    public async Task<UserManagerResponse> ExternalLogin(ExternalLoginInfo info)
+    {
+        var signinResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false, true);
+        var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+        var user = await _userManager.FindByEmailAsync(email);
+        var claims = user != null ? await _userManager.GetClaimsAsync(user) : new List<Claim>();
+
+        if (signinResult.Succeeded && user != null)
+        {
+            var token = await GenerateAccessToken(user, claims);
+            var refreshToken = await GenerateRefreshToken(user);
+            await _userManager.SetAuthenticationTokenAsync(user, TokenOptions.DefaultProvider, "RefreshToken", refreshToken);
+
+            return new UserLoginResponse
+            {
+                AcssessToken = new JwtSecurityTokenHandler().WriteToken(token),
+                ExpireDate = token.ValidTo,
+                RefreshToken = refreshToken,
+                Message = "User successfully SignIn from the external system",
+                IsSuccess = true
+            };
+        }
+
+        if (email != null)
+        {
+            if (user == null)
+            {
+                user = new AppUser()
+                {
+                    UserName = info.Principal.FindFirstValue(ClaimTypes.Email),
+                    Email = info.Principal.FindFirstValue(ClaimTypes.Email),
+                    PhoneNumber = info.Principal.FindFirstValue(ClaimTypes.MobilePhone),
+                    Name = info.Principal.FindFirstValue(ClaimTypes.Name),
+                    
+                };
+                await _userManager.CreateAsync(user);
+            }
+        
+            await _userManager.AddLoginAsync(user, info);
+            await _signInManager.SignInAsync(user, false);
+            
+            var token = await GenerateAccessToken(user, claims);
+            var refreshToken = await GenerateRefreshToken(user);
+            await _userManager.SetAuthenticationTokenAsync(user, TokenOptions.DefaultEmailProvider, "RefreshToken", refreshToken);
+        
+        
+            return new UserLoginResponse
+            {
+                AcssessToken = new JwtSecurityTokenHandler().WriteToken(token),
+                ExpireDate = token.ValidTo,
+                RefreshToken = refreshToken,
+                Message = "User successfully Sign In from the external system",
+                IsSuccess = true
+            };
+        }
+
+        return new UserManagerResponse()
+        {
+            Message = "Error when trying to create a user from an external system",
+            IsSuccess = false
+        };
     }
 }

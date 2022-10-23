@@ -12,7 +12,8 @@ namespace Foodcourt.Api
     public class Startup
     {
         private IConfiguration Configuration { get; }
-        public Startup(IConfiguration configuration) => 
+
+        public Startup(IConfiguration configuration) =>
             Configuration = configuration;
 
         public void ConfigureServices(IServiceCollection services)
@@ -25,8 +26,13 @@ namespace Foodcourt.Api
             });
 
             services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddSignInManager()
                 .AddEntityFrameworkStores<AppDataContext>()
-                .AddDefaultTokenProviders()
+                .AddTokenProvider(TokenOptions.DefaultProvider, typeof(DataProtectorTokenProvider<IdentityUser>))
+                .AddTokenProvider(TokenOptions.DefaultEmailProvider, typeof(EmailTokenProvider<IdentityUser>))
+                .AddTokenProvider(TokenOptions.DefaultPhoneProvider, typeof(PhoneNumberTokenProvider<IdentityUser>))
+                .AddTokenProvider(TokenOptions.DefaultAuthenticatorProvider,
+                    typeof(AuthenticatorTokenProvider<IdentityUser>))
                 .AddTokenProvider(Configuration["AuthSettings:ApiTokenProvider"],
                     typeof(DataProtectorTokenProvider<IdentityUser>));
             services.AddAuthentication(auth =>
@@ -34,8 +40,11 @@ namespace Foodcourt.Api
                     auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
+                .AddCookie()
                 .AddJwtBearer(options =>
                 {
+                    options.RequireHttpsMetadata = true;
+                    options.SaveToken = true;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
@@ -47,7 +56,32 @@ namespace Foodcourt.Api
                             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AuthSettings:Key"])),
                         ValidateIssuerSigningKey = true
                     };
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnAuthenticationFailed = context =>
+                        {
+                            if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                            {
+                                context.Response.Headers.Add("Token-Expired", "true");
+                            }
+
+                            return Task.CompletedTask;
+                        }
+                    };
+                })
+                .AddGoogle(options =>
+                {
+                    options.ClientId = "294554234243-fktmnpt9ep2e3q91b8adff5dt0u4ltca.apps.googleusercontent.com";
+                    options.ClientSecret = "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";
                 });
+
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
+            });
+
             services.AddControllers()
                 .ConfigureJson();
 
@@ -75,8 +109,3 @@ namespace Foodcourt.Api
         }
     }
 }
-
-
-// // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-// // builder.Services.AddEndpointsApiExplorer();
-// // builder.Services.AddSwaggerDocument();
