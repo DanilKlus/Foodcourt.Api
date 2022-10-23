@@ -71,6 +71,7 @@ namespace Foodcourt.Api
                 })
                 .AddGoogle(options =>
                 {
+                    //TODO: save this
                     options.ClientId = "294554234243-fktmnpt9ep2e3q91b8adff5dt0u4ltca.apps.googleusercontent.com";
                     options.ClientSecret = "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";
                 });

@@ -1,6 +1,6 @@
 ﻿namespace Foodcourt.Data.Api.Response;
 
-public class UserLoginResponse : UserManagerResponse
+public class AuthLoginResponse : AuthManagerResponse
 {
     public string AcssessToken { get; set; }
     public DateTime? ExpireDate { get; set; }

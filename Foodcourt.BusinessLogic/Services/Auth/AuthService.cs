@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Foodcourt.BusinessLogic.Services.Users;
 using Foodcourt.Data.Api.Entities.Users;
 using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
@@ -8,15 +9,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Foodcourt.BusinessLogic.Services.Users;
+namespace Foodcourt.BusinessLogic.Services.Auth;
 
-public class UserService : IUserService
+public class AuthService : IAuthService
 {
     private readonly UserManager<IdentityUser> _userManager;
     private readonly IConfiguration _configuration;
     private readonly SignInManager<IdentityUser> _signInManager;
 
-    public UserService(UserManager<IdentityUser> userManager, IConfiguration configuration,
+    public AuthService(UserManager<IdentityUser> userManager, IConfiguration configuration,
         SignInManager<IdentityUser> signInManager)
     {
         _userManager = userManager;
@@ -25,8 +26,9 @@ public class UserService : IUserService
     }
 
 
-    public async Task<UserManagerResponse> RegisterUserAsync(UserRegisterRequest userRequest)
+    public async Task<AuthManagerResponse> RegisterUserAsync(UserRegisterRequest userRequest)
     {
+        //TODO create google users and throw email and pass errors
         if (userRequest == null)
             throw new NullReferenceException("Request is null");
         var appUser = new AppUser()
@@ -39,13 +41,13 @@ public class UserService : IUserService
         var result = await _userManager.CreateAsync(appUser, userRequest.Password);
         await _userManager.AddToRoleAsync(appUser, _configuration["AuthSettings:DefaultUserRole"]);
         if (result.Succeeded)
-            return new UserManagerResponse
+            return new AuthManagerResponse
             {
                 //TODO: confirm email and create basket 
                 Message = "User created successfully",
                 IsSuccess = true
             };
-        return new UserManagerResponse
+        return new AuthManagerResponse
         {
             Message = "User did not created",
             IsSuccess = false,
@@ -53,18 +55,18 @@ public class UserService : IUserService
         };
     }
 
-    public async Task<UserManagerResponse> LoginUserAsync(UserLoginRequest userRequest)
+    public async Task<AuthManagerResponse> LoginUserAsync(UserLoginRequest userRequest)
     {
         var user = await _userManager.FindByEmailAsync(userRequest.Email);
         if (user == null)
-            return new UserManagerResponse
+            return new AuthManagerResponse
             {
                 Message = $"User with email '{userRequest.Email}' not found",
                 IsSuccess = false
             };
         var result = await _userManager.CheckPasswordAsync(user, userRequest.Password);
         if (!result)
-            return new UserManagerResponse
+            return new AuthManagerResponse
             {
                 Message = "Invalid password",
                 IsSuccess = false
@@ -74,7 +76,7 @@ public class UserService : IUserService
         var token = await GenerateAccessToken(user, claims);
         var refreshToken = await GenerateRefreshToken(user);
         var tokenAsString = new JwtSecurityTokenHandler().WriteToken(token);
-        return new UserLoginResponse
+        return new AuthLoginResponse
         {
             Message = "User has been successfully authenticated",
             IsSuccess = true,
@@ -84,11 +86,11 @@ public class UserService : IUserService
         };
     }
 
-    public async Task<UserManagerResponse> RefreshLoginAsync(string refreshToken, string userId)
+    public async Task<AuthManagerResponse> RefreshLoginAsync(string refreshToken, string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null)
-            return new UserManagerResponse
+            return new AuthManagerResponse
             {
                 Message = $"User with id '{userId}' not found",
                 IsSuccess = false
@@ -96,7 +98,7 @@ public class UserService : IUserService
         var result = await _userManager.VerifyUserTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"],
             "RefreshToken", refreshToken);
         if (!result)
-            return new UserManagerResponse
+            return new AuthManagerResponse
             {
                 Message = "Refresh token not valid",
                 IsSuccess = false
@@ -106,7 +108,7 @@ public class UserService : IUserService
         var token = await GenerateAccessToken(user, claims);
         var newRefreshToken = await GenerateRefreshToken(user);
         var tokenAsString = new JwtSecurityTokenHandler().WriteToken(token);
-        return new UserLoginResponse
+        return new AuthLoginResponse
         {
             Message = "Token successfully refreshed",
             IsSuccess = true,
@@ -149,7 +151,7 @@ public class UserService : IUserService
     }
 
 
-    public async Task<UserManagerResponse> ExternalLogin(ExternalLoginInfo info)
+    public async Task<AuthManagerResponse> ExternalLogin(ExternalLoginInfo info)
     {
         var signinResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false, true);
         var email = info.Principal.FindFirstValue(ClaimTypes.Email);
@@ -162,7 +164,7 @@ public class UserService : IUserService
             var refreshToken = await GenerateRefreshToken(user);
             await _userManager.SetAuthenticationTokenAsync(user, TokenOptions.DefaultProvider, "RefreshToken", refreshToken);
 
-            return new UserLoginResponse
+            return new AuthLoginResponse
             {
                 AcssessToken = new JwtSecurityTokenHandler().WriteToken(token),
                 ExpireDate = token.ValidTo,
@@ -195,7 +197,7 @@ public class UserService : IUserService
             await _userManager.SetAuthenticationTokenAsync(user, TokenOptions.DefaultEmailProvider, "RefreshToken", refreshToken);
         
         
-            return new UserLoginResponse
+            return new AuthLoginResponse
             {
                 AcssessToken = new JwtSecurityTokenHandler().WriteToken(token),
                 ExpireDate = token.ValidTo,
@@ -205,7 +207,7 @@ public class UserService : IUserService
             };
         }
 
-        return new UserManagerResponse()
+        return new AuthManagerResponse()
         {
             Message = "Error when trying to create a user from an external system",
             IsSuccess = false

@@ -14,37 +14,37 @@ namespace Foodcourt.Api.Controllers
     [AllowAnonymous]
     [Produces(MediaTypeNames.Application.Json)]
     [Route("v1.0/[controller]")]
-    public class UsersController : ControllerBase
+    public class AuthController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IAuthService _authService;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
 
-        public UsersController(IUserService userService, SignInManager<IdentityUser> signInManager,
+        public AuthController(IAuthService authService, SignInManager<IdentityUser> signInManager,
             UserManager<IdentityUser> userManager)
         {
-            _userService = userService;
+            _authService = authService;
             _signInManager = signInManager;
             _userManager = userManager;
         }
 
         [HttpPost("register")]
-        [ProducesResponseType(typeof(UserManagerResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AuthManagerResponse), StatusCodes.Status200OK)]
         public async Task<ActionResult> Register([FromBody] UserRegisterRequest registerRequest)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
-            var result = await _userService.RegisterUserAsync(registerRequest);
+            var result = await _authService.RegisterUserAsync(registerRequest);
             return Ok(result);
         }
 
         [HttpPost("login")]
-        [ProducesResponseType(typeof(UserManagerResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AuthManagerResponse), StatusCodes.Status200OK)]
         public async Task<ActionResult> Login([FromBody] UserLoginRequest loginRequest)
         {
             if (!ModelState.IsValid) return BadRequest();
 
-            var result = await _userService.LoginUserAsync(loginRequest);
+            var result = await _authService.LoginUserAsync(loginRequest);
             if (result.IsSuccess)
                 return Ok(result);
 
@@ -52,7 +52,7 @@ namespace Foodcourt.Api.Controllers
         }
 
         [HttpPost("token/refresh")]
-        [ProducesResponseType(typeof(UserManagerResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AuthManagerResponse), StatusCodes.Status200OK)]
         public async Task<ActionResult> RefreshLogin([FromBody] RefreshTokenRequest refreshRequest)
         {
             if (!ModelState.IsValid) return BadRequest();
@@ -60,7 +60,7 @@ namespace Foodcourt.Api.Controllers
             if (userId == null)
                 return BadRequest("User does not have ID");
 
-            var result = await _userService.RefreshLoginAsync(refreshRequest.RefreshToken, userId);
+            var result = await _authService.RefreshLoginAsync(refreshRequest.RefreshToken, userId);
             if (result.IsSuccess)
                 return Ok(result);
 
@@ -88,7 +88,7 @@ namespace Foodcourt.Api.Controllers
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
                 return Unauthorized("Eailure when connecting to an external service");
-            var result = await _userService.ExternalLogin(info);
+            var result = await _authService.ExternalLogin(info);
 
             Response.Cookies.Delete("ApiToken");
             Response.Cookies.Append(

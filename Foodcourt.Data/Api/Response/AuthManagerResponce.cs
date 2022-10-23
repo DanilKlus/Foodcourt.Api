@@ -1,6 +1,6 @@
 ﻿namespace Foodcourt.Data.Api.Response;
 
-public class UserManagerResponse
+public class AuthManagerResponse
 {
     public string Message { get; set; }
     public bool IsSuccess { get; set; }
