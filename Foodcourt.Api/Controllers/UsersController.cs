@@ -63,16 +63,5 @@ namespace Foodcourt.Api.Controllers
             return BadRequest(result);
             
         }
-        
-        // [HttpPost]
-        // [AllowAnonymous]
-        // [Route("account/external-login")]
-        // public IActionResult ExternalLogin(string provider, string returnUrl)
-        // {
-        //     var redirectUrl = $"https://localhost:7003/v1.0/cafes";
-        //     var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
-        //     properties.AllowRefresh = true;
-        //     return Challenge(properties, provider);
-        // }
     }
 }
