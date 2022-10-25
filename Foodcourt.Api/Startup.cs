@@ -12,7 +12,6 @@ namespace Foodcourt.Api
     public class Startup
     {
         private IConfiguration Configuration { get; }
-
         public Startup(IConfiguration configuration) =>
             Configuration = configuration;
 
@@ -28,13 +27,13 @@ namespace Foodcourt.Api
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddSignInManager()
                 .AddEntityFrameworkStores<AppDataContext>()
-                .AddTokenProvider(TokenOptions.DefaultProvider, typeof(DataProtectorTokenProvider<IdentityUser>))
-                .AddTokenProvider(TokenOptions.DefaultEmailProvider, typeof(EmailTokenProvider<IdentityUser>))
-                .AddTokenProvider(TokenOptions.DefaultPhoneProvider, typeof(PhoneNumberTokenProvider<IdentityUser>))
                 .AddTokenProvider(TokenOptions.DefaultAuthenticatorProvider,
                     typeof(AuthenticatorTokenProvider<IdentityUser>))
                 .AddTokenProvider(Configuration["AuthSettings:ApiTokenProvider"],
-                    typeof(DataProtectorTokenProvider<IdentityUser>));
+                    typeof(DataProtectorTokenProvider<IdentityUser>))
+                .AddTokenProvider(Configuration["GoogleAuthSettings:GoogleTokenProvider"],
+                typeof(DataProtectorTokenProvider<IdentityUser>));
+            
             services.AddAuthentication(auth =>
                 {
                     auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -61,32 +60,22 @@ namespace Foodcourt.Api
                         OnAuthenticationFailed = context =>
                         {
                             if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
-                            {
                                 context.Response.Headers.Add("Token-Expired", "true");
-                            }
-
                             return Task.CompletedTask;
                         }
                     };
                 })
                 .AddGoogle(options =>
                 {
-                    //TODO: save this
-                    options.ClientId = "294554234243-fktmnpt9ep2e3q91b8adff5dt0u4ltca.apps.googleusercontent.com";
-                    options.ClientSecret = "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";
+                    options.ClientId = Configuration["GoogleAuthSettings:ClientId"];
+                    options.ClientSecret = Configuration["GoogleAuthSettings:ClientSecret"];
                 });
-
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
-            });
 
             services.AddControllers()
                 .ConfigureJson();
-            services.AddSwaggerDocument(doc => doc.Title = "Foodcourt.Api");
             services.AddSystemServices();
+            
+            services.AddSwaggerDocument(doc => doc.Title = "Foodcourt.Api");
         }
 
 
@@ -94,21 +83,19 @@ namespace Foodcourt.Api
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
-
+                app.UseDeveloperExceptionPage()
+                    .UseSwagger()
+                    .UseSwaggerUi3()
+                    .UseOpenApi();
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-                app.UseOpenApi()
-                    .UseSwagger()
-                    .UseSwaggerUi3();
 
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints => endpoints.MapControllers());
         }
     }
 }

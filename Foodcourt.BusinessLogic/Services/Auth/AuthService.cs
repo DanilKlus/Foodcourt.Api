@@ -1,7 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Foodcourt.BusinessLogic.Services.Users;
 using Foodcourt.Data.Api.Entities.Users;
 using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
@@ -17,8 +16,7 @@ public class AuthService : IAuthService
     private readonly IConfiguration _configuration;
     private readonly SignInManager<IdentityUser> _signInManager;
 
-    public AuthService(UserManager<IdentityUser> userManager, IConfiguration configuration,
-        SignInManager<IdentityUser> signInManager)
+    public AuthService(UserManager<IdentityUser> userManager, IConfiguration configuration, SignInManager<IdentityUser> signInManager)
     {
         _userManager = userManager;
         _configuration = configuration;
@@ -31,6 +29,7 @@ public class AuthService : IAuthService
         //TODO create google users and throw email and pass errors
         if (userRequest == null)
             throw new NullReferenceException("Request is null");
+        
         var appUser = new AppUser()
         {
             Email = userRequest.Email,
@@ -38,20 +37,21 @@ public class AuthService : IAuthService
             PhoneNumber = userRequest.Phone,
             Name = userRequest.Name
         };
-        var result = await _userManager.CreateAsync(appUser, userRequest.Password);
-        await _userManager.AddToRoleAsync(appUser, _configuration["AuthSettings:DefaultUserRole"]);
-        if (result.Succeeded)
+        var createUserResult = await _userManager.CreateAsync(appUser, userRequest.Password);
+        var addRoleResult = await _userManager.AddToRoleAsync(appUser, _configuration["AuthSettings:DefaultUserRole"]);
+        if (createUserResult.Succeeded && addRoleResult.Succeeded)
             return new AuthManagerResponse
             {
                 //TODO: confirm email and create basket 
                 Message = "User created successfully",
                 IsSuccess = true
             };
+        
         return new AuthManagerResponse
         {
             Message = "User did not created",
             IsSuccess = false,
-            Errors = result.Errors.Select(e => e.Description).ToList()
+            Errors = createUserResult.Errors.Select(e => e.Description).Concat(addRoleResult.Errors.Select(e => e.Description)).ToList()
         };
     }
 
@@ -74,7 +74,9 @@ public class AuthService : IAuthService
 
         var claims = new List<Claim>();
         var token = await GenerateAccessToken(user, claims);
-        var refreshToken = await GenerateRefreshToken(user);
+        var refreshToken = await GenerateRefreshToken(user, _configuration["AuthSettings:ApiTokenProvider"]);
+        await _userManager.SetAuthenticationTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"], "RefreshToken", refreshToken);
+        
         var tokenAsString = new JwtSecurityTokenHandler().WriteToken(token);
         return new AuthLoginResponse
         {
@@ -86,7 +88,7 @@ public class AuthService : IAuthService
         };
     }
 
-    public async Task<AuthManagerResponse> RefreshLoginAsync(string refreshToken, string userId)
+    public async Task<AuthManagerResponse> RefreshTokenAsync(string refreshToken, string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null)
@@ -95,8 +97,8 @@ public class AuthService : IAuthService
                 Message = $"User with id '{userId}' not found",
                 IsSuccess = false
             };
-        var result = await _userManager.VerifyUserTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"],
-            "RefreshToken", refreshToken);
+        
+        var result = await _userManager.VerifyUserTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"], "RefreshToken", refreshToken);
         if (!result)
             return new AuthManagerResponse
             {
@@ -106,7 +108,9 @@ public class AuthService : IAuthService
 
         var claims = await _userManager.GetClaimsAsync(user);
         var token = await GenerateAccessToken(user, claims);
-        var newRefreshToken = await GenerateRefreshToken(user);
+        var newRefreshToken = await GenerateRefreshToken(user, _configuration["AuthSettings:ApiTokenProvider"]);
+        await _userManager.SetAuthenticationTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"], "RefreshToken", newRefreshToken);
+
         var tokenAsString = new JwtSecurityTokenHandler().WriteToken(token);
         return new AuthLoginResponse
         {
@@ -117,41 +121,8 @@ public class AuthService : IAuthService
             ExpireDate = token.ValidTo
         };
     }
-
-
-    private async Task<JwtSecurityToken> GenerateAccessToken(IdentityUser user, ICollection<Claim> claims)
-    {
-        claims.Add(new("email", user.Email));
-        claims.Add(new("sub", user.Id));
-        var userRoles = await _userManager.GetRolesAsync(user);
-        foreach (var userRole in userRoles)
-            claims.Add(new Claim("roles", userRole));
-        
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AuthSettings:Key"]));
-        var token = new JwtSecurityToken(
-            issuer: _configuration["AuthSettings:Issuer"],
-            audience: _configuration["AuthSettings:Audience"],
-            claims: claims,
-            expires: DateTime.Now.AddDays(Convert.ToDouble(_configuration["AuthSettings:TokenLifeDays"])),
-            signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256));
-        return token;
-    }
-
-    private async Task<string> GenerateRefreshToken(IdentityUser user)
-    {
-        //TODO: set expiration date 
-        var newRefreshToken =
-            await _userManager.GenerateUserTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"],
-                "RefreshToken");
-        await _userManager.RemoveAuthenticationTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"],
-            "RefreshToken");
-        await _userManager.SetAuthenticationTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"],
-            "RefreshToken", newRefreshToken);
-        return newRefreshToken;
-    }
-
-
-    public async Task<AuthManagerResponse> ExternalLogin(ExternalLoginInfo info)
+    
+    public async Task<AuthManagerResponse> ExternalLoginAsync(ExternalLoginInfo info)
     {
         var signinResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false, true);
         var email = info.Principal.FindFirstValue(ClaimTypes.Email);
@@ -161,8 +132,8 @@ public class AuthService : IAuthService
         if (signinResult.Succeeded && user != null)
         {
             var token = await GenerateAccessToken(user, claims);
-            var refreshToken = await GenerateRefreshToken(user);
-            await _userManager.SetAuthenticationTokenAsync(user, TokenOptions.DefaultProvider, "RefreshToken", refreshToken);
+            var refreshToken = await GenerateRefreshToken(user, info.ProviderDisplayName);
+            await _userManager.SetAuthenticationTokenAsync(user, info.ProviderDisplayName, "RefreshToken",refreshToken);
 
             return new AuthLoginResponse
             {
@@ -184,19 +155,26 @@ public class AuthService : IAuthService
                     Email = info.Principal.FindFirstValue(ClaimTypes.Email),
                     PhoneNumber = info.Principal.FindFirstValue(ClaimTypes.MobilePhone),
                     Name = info.Principal.FindFirstValue(ClaimTypes.Name),
-                    
+                    EmailConfirmed = true
                 };
-                await _userManager.CreateAsync(user);
+                var createUserResult = await _userManager.CreateAsync(user);
+                var addRoleResult = await _userManager.AddToRoleAsync(user, _configuration["AuthSettings:DefaultUserRole"]);
+                if (!createUserResult.Succeeded || !addRoleResult.Succeeded)
+                    return new AuthManagerResponse()
+                    {
+                        Message = "Failed to add a user in database",
+                        IsSuccess = false,
+                        Errors = createUserResult.Errors.Select(e => e.Description).Concat(addRoleResult.Errors.Select(e => e.Description)).ToList()
+                    };
             }
-        
+
             await _userManager.AddLoginAsync(user, info);
             await _signInManager.SignInAsync(user, false);
-            
+
             var token = await GenerateAccessToken(user, claims);
-            var refreshToken = await GenerateRefreshToken(user);
-            await _userManager.SetAuthenticationTokenAsync(user, TokenOptions.DefaultEmailProvider, "RefreshToken", refreshToken);
-        
-        
+            var refreshToken = await GenerateRefreshToken(user, info.ProviderDisplayName);
+            await _userManager.SetAuthenticationTokenAsync(user, info.ProviderDisplayName, "RefreshToken", refreshToken);
+
             return new AuthLoginResponse
             {
                 AcssessToken = new JwtSecurityTokenHandler().WriteToken(token),
@@ -209,8 +187,34 @@ public class AuthService : IAuthService
 
         return new AuthManagerResponse()
         {
-            Message = "Error when trying to create a user from an external system",
+            Message = "Failed to create a user from an external system",
             IsSuccess = false
         };
+    }
+
+    private async Task<JwtSecurityToken> GenerateAccessToken(IdentityUser user, ICollection<Claim> claims)
+    {
+        claims.Add(new Claim("email", user.Email));
+        claims.Add(new Claim("sub", user.Id));
+        var userRoles = await _userManager.GetRolesAsync(user);
+        foreach (var userRole in userRoles)
+            claims.Add(new Claim("roles", userRole));
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AuthSettings:Key"]));
+        var token = new JwtSecurityToken(
+            issuer: _configuration["AuthSettings:Issuer"],
+            audience: _configuration["AuthSettings:Audience"],
+            claims: claims,
+            expires: DateTime.Now.AddDays(Convert.ToDouble(_configuration["AuthSettings:TokenLifeDays"])),
+            signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256));
+        return token;
+    }
+
+    private async Task<string> GenerateRefreshToken(IdentityUser user, string provider)
+    {
+        //TODO: set expiration date 
+        await _userManager.RemoveAuthenticationTokenAsync(user, provider, "RefreshToken");
+        var newRefreshToken = await _userManager.GenerateUserTokenAsync(user, provider,"RefreshToken");
+        return newRefreshToken;
     }
 }

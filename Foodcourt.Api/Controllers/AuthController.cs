@@ -1,5 +1,5 @@
 ﻿using System.Net.Mime;
-using Foodcourt.BusinessLogic.Services.Users;
+using Foodcourt.BusinessLogic.Services.Auth;
 using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
 using Microsoft.AspNetCore.Authorization;
@@ -19,23 +19,26 @@ namespace Foodcourt.Api.Controllers
         private readonly IAuthService _authService;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IConfiguration _configuration;
 
         public AuthController(IAuthService authService, SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager)
+            UserManager<IdentityUser> userManager, IConfiguration configuration)
         {
             _authService = authService;
             _signInManager = signInManager;
             _userManager = userManager;
+            _configuration = configuration;
         }
 
-        [HttpPost("register")]
+        [HttpPost("registration")]
         [ProducesResponseType(typeof(AuthManagerResponse), StatusCodes.Status200OK)]
         public async Task<ActionResult> Register([FromBody] UserRegisterRequest registerRequest)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid) 
                 return BadRequest();
+            
             var result = await _authService.RegisterUserAsync(registerRequest);
-            return Ok(result);
+            return Created("auth/registration", result);
         }
 
         [HttpPost("login")]
@@ -51,16 +54,16 @@ namespace Foodcourt.Api.Controllers
             return BadRequest(result);
         }
 
-        [HttpPost("token/refresh")]
+        [HttpPost("refresh-token")]
         [ProducesResponseType(typeof(AuthManagerResponse), StatusCodes.Status200OK)]
         public async Task<ActionResult> RefreshLogin([FromBody] RefreshTokenRequest refreshRequest)
         {
-            if (!ModelState.IsValid) return BadRequest();
+            if (!ModelState.IsValid) return BadRequest("Model not valid");
             var userId = _userManager.GetUserId(User);
             if (userId == null)
                 return BadRequest("User does not have ID");
 
-            var result = await _authService.RefreshLoginAsync(refreshRequest.RefreshToken, userId);
+            var result = await _authService.RefreshTokenAsync(refreshRequest.RefreshToken, userId);
             if (result.IsSuccess)
                 return Ok(result);
 
@@ -70,17 +73,15 @@ namespace Foodcourt.Api.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("account/external-login")]
-        public IActionResult ExternalLogin(string provider, string returnUrl)
+        public IActionResult ExternalLogin(string provider, string backUrl)
         {
-            //TODO: move to configs
-            var redirectUrl = $"https://localhost:7777/v1.0/users/account/external-auth-callback?returnUrl={returnUrl}";
+            var redirectUrl = $"{_configuration["BaseUrl"]}/auth/account/external-auth-callback?returnUrl={backUrl}";
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             properties.AllowRefresh = true;
+            
             return Challenge(properties, provider);
         }
-
-
-        //TODO refactor
+        
         [HttpGet]
         [AllowAnonymous]
         [Route("account/external-auth-callback")]
@@ -88,18 +89,14 @@ namespace Foodcourt.Api.Controllers
         {
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
-                return Unauthorized("Eailure when connecting to an external service");
-            var result = await _authService.ExternalLogin(info);
+                return Unauthorized("Connecting to an external service failed");
 
-            Response.Cookies.Delete("ApiToken");
-            Response.Cookies.Append(
-                "ApiTokens",
+            var result = await _authService.ExternalLoginAsync(info);
+
+            Response.Cookies.Append("ApiTokens",
                 JsonConvert.SerializeObject(result, new JsonSerializerSettings
                 {
-                    ContractResolver = new DefaultContractResolver
-                    {
-                        NamingStrategy = new CamelCaseNamingStrategy()
-                    },
+                    ContractResolver = new DefaultContractResolver {NamingStrategy = new CamelCaseNamingStrategy()},
                     Formatting = Formatting.Indented
                 }));
             return Redirect($"http://localhost:3000");

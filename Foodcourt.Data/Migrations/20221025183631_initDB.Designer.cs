@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Foodcourt.Data.Migrations
 {
     [DbContext(typeof(AppDataContext))]
-    [Migration("20221022210851_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20221025183631_initDB")]
+    partial class initDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -518,10 +518,6 @@ namespace Foodcourt.Data.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("text");
 
