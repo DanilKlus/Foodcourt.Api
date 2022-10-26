@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Foodcourt.Data;
 using Foodcourt.Data.Api.Entities.Users;
 using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
@@ -35,7 +36,8 @@ public class AuthService : IAuthService
             Email = userRequest.Email,
             UserName = userRequest.Email,
             PhoneNumber = userRequest.Phone,
-            Name = userRequest.Name
+            Name = userRequest.Name,
+            Basket = new Data.Api.Entities.Users.Basket()
         };
         var createUserResult = await _userManager.CreateAsync(appUser, userRequest.Password);
         var addRoleResult = await _userManager.AddToRoleAsync(appUser, _configuration["AuthSettings:DefaultUserRole"]);
@@ -155,7 +157,8 @@ public class AuthService : IAuthService
                     Email = info.Principal.FindFirstValue(ClaimTypes.Email),
                     PhoneNumber = info.Principal.FindFirstValue(ClaimTypes.MobilePhone),
                     Name = info.Principal.FindFirstValue(ClaimTypes.Name),
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    Basket = new Data.Api.Entities.Users.Basket()
                 };
                 var createUserResult = await _userManager.CreateAsync(user);
                 var addRoleResult = await _userManager.AddToRoleAsync(user, _configuration["AuthSettings:DefaultUserRole"]);
@@ -184,7 +187,7 @@ public class AuthService : IAuthService
                 IsSuccess = true
             };
         }
-
+        //TODO: add errors response
         return new AuthManagerResponse()
         {
             Message = "Failed to create a user from an external system",

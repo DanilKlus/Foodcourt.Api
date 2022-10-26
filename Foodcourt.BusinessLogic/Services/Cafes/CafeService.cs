@@ -38,6 +38,7 @@ public class CafeService : ICafeService
     public async Task<ProductResponse> GetProductAsync(long cafeId, long productId)
     {
         var product = await _dataContext.Products
+            .Include(p => p.ProductVariants)
             .Include(p => p.ProductTypes)
             .FirstOrDefaultAsync(product => product.Id == productId);
         if (product == null) 

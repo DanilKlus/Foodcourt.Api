@@ -1,4 +1,5 @@
 ﻿using Foodcourt.BusinessLogic.Services.Auth;
+using Foodcourt.BusinessLogic.Services.Basket;
 using Foodcourt.BusinessLogic.Services.Cafes;
 
 namespace Foodcourt.Api.DI
@@ -9,8 +10,9 @@ namespace Foodcourt.Api.DI
         {
             services
                 .AddDistributedMemoryCache()
-                .AddScoped<ICafeService, CafeService>()
-                .AddScoped<IAuthService, AuthService>();
+                .AddScoped<IAuthService, AuthService>()
+                .AddScoped<IBasketService, BasketService>()
+                .AddScoped<ICafeService, CafeService>();
             return services;
         }
     }

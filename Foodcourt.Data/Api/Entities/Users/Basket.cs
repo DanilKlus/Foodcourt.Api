@@ -10,7 +10,8 @@ public class Basket
     public BasketStatus Status { get; set; }
 
     [ForeignKey("AppUserId")]
-    public long AppUserId { get; set; }
+    public string AppUserId { get; set; }
+    public AppUser AppUser { get; set; }
     
    
     public List<BasketProduct> BasketProducts { get; set; }
