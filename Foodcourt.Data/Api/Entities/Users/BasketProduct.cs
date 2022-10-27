@@ -10,6 +10,7 @@ public class BasketProduct
     
     
     [ForeignKey("ProductId")]
+    public long ProductId { get; set; }
     public virtual Product Product { get; set; }
     [ForeignKey("ProductVariantId")]
     public long ProductVariantId { get; set; }

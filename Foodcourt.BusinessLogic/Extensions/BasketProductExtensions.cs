@@ -11,7 +11,8 @@ namespace Foodcourt.BusinessLogic.Extensions
             var product = basketProduct.Product;
             return new BasketProductResponse()
             {
-                Id = product.Id,
+                Id = basketProduct.Id,
+                ProductId = product.Id,
                 Name = product.Name,
                 Description = product.Description,
                 Avatar = product.Avatar,

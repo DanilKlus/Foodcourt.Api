@@ -21,6 +21,7 @@ public class CafeBasket
 
 public class BasketProductResponse : ProductResponse
 {
+    public long ProductId { get; set; }
     public int Count { get; set; }
     public ProductVariantResponse ProductVariants { get; set; }
 }
