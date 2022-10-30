@@ -46,7 +46,7 @@ namespace Foodcourt.Api.Controllers
             return Ok();
         }
         
-        [HttpPost]
+        [HttpPut]
         public async Task<ActionResult> AddProduct([FromBody] AddProductRequest addAddProductRequest)
         {
             var userId = _userManager.GetUserId(User);
