@@ -14,7 +14,9 @@ namespace Foodcourt.BusinessLogic.Extensions
                 Description = cafe.Description,
                 Status = cafe.Status,
                 Avatar = cafe.Avatar,
-                Location = cafe.Location
+                Adress = cafe.Adress,
+                Latitude = cafe.Latitude,
+                Longitude = cafe.Longitude
             };
         }
     }

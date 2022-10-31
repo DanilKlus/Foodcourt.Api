@@ -9,5 +9,7 @@ public class CafeResponse
     public string Description { get; set; }
     public CafeStatus Status { get; set; }
     public string Avatar { get; set; }
-    public string Location { get; set; }
+    public string Adress { get; set; }
+    public double Latitude { get; set; }
+    public double Longitude { get; set; }
 }
