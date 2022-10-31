@@ -12,4 +12,5 @@ public interface IOrderService
     Task<OrderResponse> GetOrderAsync(string userId, long orderId);
     Task CancelOrderAsync(string userId, long orderId);
     Task<OrderResponse> PatchOrderAsync(string userId, long orderId, PathOrderRequest patchRequest);
+    Task<BasketResponse> RepeatOrderAsync(string userId, long orderId);
 }

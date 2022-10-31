@@ -67,6 +67,12 @@ public class BasketService : IBasketService
     public async Task<long> AddProductAsync(string userId, AddProductRequest addAddProductRequest)
     {
         var basket = await GetBasketEntityAsync(userId);
+        var productIsAdded = await _dataContext.BasketProducts
+            .Where(x => x.BasketId.Equals(basket.Id))
+            .Select(x => x.ProductId)
+            .ContainsAsync(addAddProductRequest.Id);
+        if (productIsAdded)
+            throw new AddProductException("Product has already been added to the basket", addAddProductRequest.Id);
         if (basket.Status == BasketStatus.Empty)
         {
             basket.Status = BasketStatus.NotEmpty;

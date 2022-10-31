@@ -39,7 +39,7 @@ namespace Foodcourt.Api.Controllers
         
         [HttpPatch("{orderId:long}")]
         [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
-        public async Task<ActionResult> AddCommentToOrder([FromBody] PathOrderRequest patchRequest, long orderId)
+        public async Task<ActionResult> PathOrder([FromBody] PathOrderRequest patchRequest, long orderId)
         {
             var userId = _userManager.GetUserId(User);
             if (userId == null)
@@ -79,6 +79,7 @@ namespace Foodcourt.Api.Controllers
             catch (NotFoundException e) { return NotFound(e); }
         }
         
+        //TODO: add payment and push
         [HttpDelete("{orderId:long}")]
         public async Task<ActionResult> CancelOrder(long orderId)
         {
@@ -91,6 +92,21 @@ namespace Foodcourt.Api.Controllers
                 return Ok();
             }
             catch (CancelOrderException e) { return BadRequest(e); }
+        }
+        
+        [HttpPost("{orderId:long}/repeat")]
+        public async Task<ActionResult> RepeatOrder(long orderId)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return BadRequest("User does not have ID");
+            
+            try {
+                var result = await _orderService.RepeatOrderAsync(userId, orderId);
+                return Created($"orders/{orderId}/repeat", result);
+            }
+            catch (NotFoundException e) { return NotFound(e); }
+            catch (AddProductException e) { return BadRequest(e); }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Foodcourt.BusinessLogic.Extensions;
+using Foodcourt.BusinessLogic.Services.Basket;
 using Foodcourt.Data;
 using Foodcourt.Data.Api;
 using Foodcourt.Data.Api.Entities.Orders;
@@ -13,8 +14,12 @@ namespace Foodcourt.BusinessLogic.Services.Orders;
 public class OrderService : IOrderService
 {
     private readonly AppDataContext _dataContext;
-    public OrderService(AppDataContext dataContext) =>
+    private readonly BasketService _basketService;
+    public OrderService(AppDataContext dataContext, BasketService basketService)
+    {
         _dataContext = dataContext;
+        _basketService = basketService;
+    }
 
     public async Task CreateOrders(string userId)
     {
@@ -61,6 +66,20 @@ public class OrderService : IOrderService
         return order.ToEntity();
     }
 
+    public async Task<BasketResponse> RepeatOrderAsync(string userId, long orderId)
+    {
+        var order = await GetOrderEntityAsync(userId, orderId);
+        await _basketService.CleanBasketAsync(userId);
+        foreach (var product in order.OrderProducts)
+            await _basketService.AddProductAsync(userId, new AddProductRequest
+            {
+                Id = product.ProductId,
+                VariantId = product.ProductVariantId
+            });
+
+        return await _basketService.GetBasketAsync(userId);
+    }
+
     public async Task<SearchResponse<OrderResponse>> GetOrdersAsync(string userId, OrderStatus? orderStatus)
     {
         var ordersResult = await _dataContext.Orders.Where(x => x.AppUserId == userId).ToListAsync();
@@ -81,7 +100,6 @@ public class OrderService : IOrderService
 
     public async Task CancelOrderAsync(string userId, long orderId)
     {
-        //TODO: add payment and push
         var order = await _dataContext.Orders.FirstOrDefaultAsync(x => x.AppUserId == userId && x.Id.Equals(orderId));
         if (order == null) return;
 
