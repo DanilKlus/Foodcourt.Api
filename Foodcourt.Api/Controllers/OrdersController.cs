@@ -1,5 +1,9 @@
 ﻿using System.Net.Mime;
 using Foodcourt.BusinessLogic.Services.Orders;
+using Foodcourt.Data.Api;
+using Foodcourt.Data.Api.Entities.Orders;
+using Foodcourt.Data.Api.Request;
+using Foodcourt.Data.Api.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -31,6 +35,18 @@ namespace Foodcourt.Api.Controllers
             
             await _orderService.CreateOrders(userId);
             return Created("orders", userId);
+        }
+        
+        [HttpGet]
+        [ProducesResponseType(typeof(SearchResponse<OrderResponse>), StatusCodes.Status200OK)]
+        public async Task<ActionResult> SearchOrders([FromQuery] OrderStatus status)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return BadRequest("User does not have ID");
+            
+            var response = await _orderService.GetOrders(userId, status);
+            return Ok(response);
         }
     }
 }

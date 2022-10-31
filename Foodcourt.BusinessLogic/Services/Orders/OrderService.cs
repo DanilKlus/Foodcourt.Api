@@ -1,7 +1,9 @@
 ﻿using Foodcourt.BusinessLogic.Extensions;
 using Foodcourt.Data;
+using Foodcourt.Data.Api;
 using Foodcourt.Data.Api.Entities.Orders;
 using Foodcourt.Data.Api.Entities.Users;
+using Foodcourt.Data.Api.Response;
 using Microsoft.EntityFrameworkCore;
 
 namespace Foodcourt.BusinessLogic.Services.Orders;
@@ -49,5 +51,17 @@ public class OrderService : IOrderService
         _dataContext.BasketProducts.RemoveRange(basketProducts);
         _dataContext.Baskets.Update(basket);
         await _dataContext.SaveChangesAsync();
+    }
+
+    public async Task<SearchResponse<OrderResponse>> GetOrders(string userId, OrderStatus? orderStatus)
+    {
+        var ordersResult = await _dataContext.Orders.Where(x => x.AppUserId == userId).ToListAsync();
+        var orders = orderStatus != null ? ordersResult.Where(x => x.Status == orderStatus).ToList() : ordersResult;
+
+        return new SearchResponse<OrderResponse>
+        {
+            FoundEntities = orders.Select(x => x.ToEntity()).ToList(),
+            TotalCount = orders.Count
+        };
     }
 }
