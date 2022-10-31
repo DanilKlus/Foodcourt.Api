@@ -11,7 +11,6 @@ namespace Foodcourt.BusinessLogic.Services.Basket;
 
 public class BasketService : IBasketService
 {
-    //TODO: refactor and add tests
     private readonly AppDataContext _dataContext;
     public BasketService(AppDataContext dataContext) =>
         _dataContext = dataContext;

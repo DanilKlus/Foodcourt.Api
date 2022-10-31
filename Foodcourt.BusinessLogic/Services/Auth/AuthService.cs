@@ -27,7 +27,6 @@ public class AuthService : IAuthService
 
     public async Task<AuthManagerResponse> RegisterUserAsync(UserRegisterRequest userRequest)
     {
-        //TODO create google users and throw email and pass errors
         var appUser = new AppUser()
         {
             Email = userRequest.Email,
@@ -184,7 +183,6 @@ public class AuthService : IAuthService
                 IsSuccess = true
             };
         }
-        //TODO: add errors response
         return new AuthManagerResponse()
         {
             Message = "Failed to create a user from an external system",

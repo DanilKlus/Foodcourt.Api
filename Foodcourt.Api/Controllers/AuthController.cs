@@ -95,6 +95,7 @@ namespace Foodcourt.Api.Controllers
                 return Unauthorized("Connecting to an external service failed");
 
             var result = await _authService.ExternalLoginAsync(info);
+            if (!result.IsSuccess) return Unauthorized(result);
 
             Response.Cookies.Append("ApiTokens",
                 JsonConvert.SerializeObject(result, new JsonSerializerSettings

@@ -32,7 +32,7 @@ public class CafeService : ICafeService
 
     public async Task<CafeResponse> GetCafeAsync(long cafeId)
     {
-        var cafe = await _dataContext.Cafes.FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));
+        var cafe = await _dataContext.Cafes.FirstOrDefaultAsync(cafe => cafe.IsActive && Equals(cafe.Id, cafeId));
         if (cafe == null)
             throw new NotFoundException(HttpStatusCode.NotFound, $"Cafe with id '{cafeId}' not found");
         return cafe.ToEntity();

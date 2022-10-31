@@ -2,8 +2,16 @@
 
 public enum CafeStatus
 {
-    //TODO: add summary
+    /// <summary>
+    /// Кафе создано
+    /// </summary>
     Created,
+    /// <summary>
+    /// Запрос на регестрацию кафе утвержден
+    /// </summary>
     Approved,
+    /// <summary>
+    /// Запрос на регестрацию кафе отклонен
+    /// </summary>
     Rejected,
 }
