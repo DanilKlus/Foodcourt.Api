@@ -2,6 +2,7 @@
 using Foodcourt.BusinessLogic.Services.Basket;
 using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
+using Foodcourt.Data.Api.Response.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,6 @@ namespace Foodcourt.Api.Controllers
     {
         private readonly IBasketService _basketService;
         private readonly UserManager<IdentityUser> _userManager;
-        
         public BasketController(IBasketService basketService, UserManager<IdentityUser> userManager)
         {
             _basketService = basketService;
@@ -64,8 +64,11 @@ namespace Foodcourt.Api.Controllers
             if (userId == null)
                 return BadRequest("User does not have ID");
             
-            await _basketService.PatchProductAsync(userId, productId, patchProductRequest);
-            return Ok();
+            try {
+                await _basketService.PatchProductAsync(userId, productId, patchProductRequest);
+                return Ok();
+            }
+            catch (NotFoundException e) { return NotFound(e); }
         }
         
         [HttpDelete("{productId:long}")]
