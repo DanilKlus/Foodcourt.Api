@@ -1,9 +1,9 @@
-﻿using System.Net;
-using Foodcourt.BusinessLogic.Extensions;
+﻿using Foodcourt.BusinessLogic.Extensions;
 using Foodcourt.Data;
 using Foodcourt.Data.Api;
 using Foodcourt.Data.Api.Entities.Orders;
 using Foodcourt.Data.Api.Entities.Users;
+using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
 using Foodcourt.Data.Api.Response.Exceptions;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +13,6 @@ namespace Foodcourt.BusinessLogic.Services.Orders;
 public class OrderService : IOrderService
 {
     private readonly AppDataContext _dataContext;
-
     public OrderService(AppDataContext dataContext) =>
         _dataContext = dataContext;
 
@@ -22,7 +21,6 @@ public class OrderService : IOrderService
         var basket = await _dataContext.Baskets.FirstOrDefaultAsync(x => x.AppUserId.Equals(userId));
         if (basket == null)
             throw new Exception($"unhandled error when get user: {userId} basket (user basket is null)");
-
         var basketProducts = await _dataContext.BasketProducts
             .Include(x => x.ProductVariant)
             .Include(p => p.Product)
@@ -40,19 +38,27 @@ public class OrderService : IOrderService
                     .Where(p => p.Product.CafeId.Equals(x.Product.CafeId))
                     .Select(p => p.Product.Price * p.Count).Sum(),
                 CreationTime = DateTime.UtcNow,
-                Comment = "todo",
                 AppUserId = userId,
                 CafeId = x.Product.CafeId,
                 OrderProducts = basketProducts
                     .Where(p => p.Product.CafeId.Equals(x.Product.CafeId))
                     .Select(p => p.ToOrder()).ToList()
             }).ToList();
-
         basket.Status = BasketStatus.Empty;
+        
         _dataContext.Orders.AddRange(orders); 
         _dataContext.BasketProducts.RemoveRange(basketProducts);
         _dataContext.Baskets.Update(basket);
         await _dataContext.SaveChangesAsync();
+    }
+    
+    public async Task<OrderResponse> PatchOrderAsync(string userId, long orderId, PathOrderRequest patchRequest)
+    {
+        var order = await GetOrderEntityAsync(userId, orderId);
+        order.Comment = patchRequest.Comment;
+        _dataContext.Orders.Update(order);
+        await _dataContext.SaveChangesAsync();
+        return order.ToEntity();
     }
 
     public async Task<SearchResponse<OrderResponse>> GetOrdersAsync(string userId, OrderStatus? orderStatus)
@@ -69,15 +75,7 @@ public class OrderService : IOrderService
 
     public async Task<OrderResponse> GetOrderAsync(string userId, long orderId)
     {
-        var order = await _dataContext.Orders
-            .Include(p => p.OrderProducts)
-                .ThenInclude(t => t.ProductVariant)
-            .Include(p => p.OrderProducts)
-                .ThenInclude(t => t.Product)
-            .FirstOrDefaultAsync(x => x.AppUserId == userId && x.Id.Equals(orderId));
-        if (order == null)
-            throw new NotFoundException($"order {orderId} not found");
-        
+        var order = await GetOrderEntityAsync(userId, orderId);
         return order.ToEntity();
     }
 
@@ -94,5 +92,18 @@ public class OrderService : IOrderService
         
         _dataContext.Orders.Update(order);
         await _dataContext.SaveChangesAsync();
+    }
+
+    private async Task<Order> GetOrderEntityAsync(string userId, long orderId)
+    {
+        var order = await _dataContext.Orders
+            .Include(p => p.OrderProducts)
+            .ThenInclude(t => t.ProductVariant)
+            .Include(p => p.OrderProducts)
+            .ThenInclude(t => t.Product)
+            .FirstOrDefaultAsync(x => x.AppUserId == userId && x.Id.Equals(orderId));
+        if (order == null)
+            throw new NotFoundException($"order {orderId} not found");
+        return order;
     }
 }
