@@ -48,5 +48,17 @@ namespace Foodcourt.Api.Controllers
             var response = await _orderService.GetOrders(userId, status);
             return Ok(response);
         }
+        
+        [HttpGet("{orderId:long}")]
+        [ProducesResponseType(typeof(SearchResponse<OrderResponse>), StatusCodes.Status200OK)]
+        public async Task<ActionResult> GetOrder(long orderId)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return BadRequest("User does not have ID");
+            
+            var response = await _orderService.GetOrder(userId, orderId);
+            return Ok(response);
+        }
     }
 }

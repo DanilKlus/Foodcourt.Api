@@ -8,4 +8,5 @@ public interface IOrderService
 {
     Task CreateOrders(string userId);
     Task<SearchResponse<OrderResponse>> GetOrders(string userId, OrderStatus? orderStatus);
+    Task<OrderResponse> GetOrder(string userId, long orderId);
 }

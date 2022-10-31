@@ -64,4 +64,18 @@ public class OrderService : IOrderService
             TotalCount = orders.Count
         };
     }
+
+    public async Task<OrderResponse> GetOrder(string userId, long orderId)
+    {
+        var order = await _dataContext.Orders
+            .Include(p => p.OrderProducts)
+                .ThenInclude(t => t.ProductVariant)
+            .Include(p => p.OrderProducts)
+                .ThenInclude(t => t.Product)
+            .FirstOrDefaultAsync(x => x.AppUserId == userId && x.Id.Equals(orderId));
+        if (order == null)
+            throw new Exception("todo 404!!");
+        
+        return order.ToEntity();
+    }
 }
