@@ -53,7 +53,7 @@ public class OrderService : IOrderService
         await _dataContext.SaveChangesAsync();
     }
 
-    public async Task<SearchResponse<OrderResponse>> GetOrders(string userId, OrderStatus? orderStatus)
+    public async Task<SearchResponse<OrderResponse>> GetOrdersAsync(string userId, OrderStatus? orderStatus)
     {
         var ordersResult = await _dataContext.Orders.Where(x => x.AppUserId == userId).ToListAsync();
         var orders = orderStatus != null ? ordersResult.Where(x => x.Status == orderStatus).ToList() : ordersResult;
@@ -65,7 +65,7 @@ public class OrderService : IOrderService
         };
     }
 
-    public async Task<OrderResponse> GetOrder(string userId, long orderId)
+    public async Task<OrderResponse> GetOrderAsync(string userId, long orderId)
     {
         var order = await _dataContext.Orders
             .Include(p => p.OrderProducts)
@@ -79,7 +79,7 @@ public class OrderService : IOrderService
         return order.ToEntity();
     }
 
-    public async Task CancelOrder(string userId, long orderId)
+    public async Task CancelOrderAsync(string userId, long orderId)
     {
         //TODO: add payment and push
         var order = await _dataContext.Orders

@@ -45,7 +45,7 @@ namespace Foodcourt.Api.Controllers
             if (userId == null)
                 return BadRequest("User does not have ID");
             
-            var response = await _orderService.GetOrders(userId, status);
+            var response = await _orderService.GetOrdersAsync(userId, status);
             return Ok(response);
         }
         
@@ -57,7 +57,7 @@ namespace Foodcourt.Api.Controllers
             if (userId == null)
                 return BadRequest("User does not have ID");
             
-            var response = await _orderService.GetOrder(userId, orderId);
+            var response = await _orderService.GetOrderAsync(userId, orderId);
             return Ok(response);
         }
         
@@ -68,7 +68,7 @@ namespace Foodcourt.Api.Controllers
             if (userId == null)
                 return BadRequest("User does not have ID");
             
-            await _orderService.CancelOrder(userId, orderId);
+            await _orderService.CancelOrderAsync(userId, orderId);
             return Ok();
         }
     }

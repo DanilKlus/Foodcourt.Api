@@ -23,7 +23,7 @@ namespace Foodcourt.Api.Controllers
         [ProducesResponseType(typeof(SearchResponse<CafeResponse>), StatusCodes.Status200OK)]
         public async Task<ActionResult> SearchCafes([FromQuery]CafeSearchRequest request)
         {
-            var response = await _cafeService.SearchByQuery(request);
+            var response = await _cafeService.GetCafesAsync(request);
             return Ok(response);
         }
         
@@ -33,7 +33,7 @@ namespace Foodcourt.Api.Controllers
         public async Task<ActionResult> GetCafe(long cafeId)
         {
             try {
-                var response = await _cafeService.GetAsync(cafeId);
+                var response = await _cafeService.GetCafeAsync(cafeId);
                 return Ok(response);
             }
             catch (NotFoundException e) { return NotFound(e); }

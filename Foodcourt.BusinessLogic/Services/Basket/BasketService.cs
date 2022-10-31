@@ -14,7 +14,7 @@ public class BasketService : IBasketService
     public BasketService(AppDataContext dataContext) =>
         _dataContext = dataContext;
 
-    public async Task<BasketResponse> GetBasket(string userId)
+    public async Task<BasketResponse> GetBasketAsync(string userId)
     {
         var basket = await _dataContext.Baskets.FirstOrDefaultAsync(basket => basket.AppUserId.Equals(userId));
         if (basket == null)
@@ -53,7 +53,7 @@ public class BasketService : IBasketService
         return basketResponse;
     }
     
-    public async Task CleanBasket(string userId)
+    public async Task CleanBasketAsync(string userId)
     {
         var basket = await _dataContext.Baskets.FirstOrDefaultAsync(x => x.AppUserId.Equals(userId));
         if (basket == null)
@@ -67,7 +67,7 @@ public class BasketService : IBasketService
         await _dataContext.SaveChangesAsync();
     }
 
-    public async Task<long> AddProduct(string userId, AddProductRequest addAddProductRequest)
+    public async Task<long> AddProductAsync(string userId, AddProductRequest addAddProductRequest)
     {
         var basket = await _dataContext.Baskets.FirstOrDefaultAsync(x => x.AppUserId.Equals(userId));
         if (basket == null)
@@ -92,7 +92,7 @@ public class BasketService : IBasketService
         return result.Entity.Id;
     }
     
-    public async Task PatchProduct(string userId, long productId, PatchProductRequest patchProductRequest)
+    public async Task PatchProductAsync(string userId, long productId, PatchProductRequest patchProductRequest)
     {
         var basket = await _dataContext.Baskets.FirstOrDefaultAsync(x => x.AppUserId.Equals(userId));
         if (basket == null)
@@ -109,7 +109,7 @@ public class BasketService : IBasketService
         await _dataContext.SaveChangesAsync();
     }
     
-    public async Task DeleteProduct(string userId, long productId)
+    public async Task DeleteProductAsync(string userId, long productId)
     {
         var basket = await _dataContext.Baskets.FirstOrDefaultAsync(x => x.AppUserId.Equals(userId));
         if (basket == null)

@@ -16,7 +16,7 @@ public class CafeService : ICafeService
     public CafeService(AppDataContext dataContext) => 
         _dataContext = dataContext;
 
-    public async Task<SearchResponse<CafeResponse>> SearchByQuery(CafeSearchRequest cafeSearch)
+    public async Task<SearchResponse<CafeResponse>> GetCafesAsync(CafeSearchRequest cafeSearch)
     {
         var skipCount = cafeSearch.Skip ?? 0;
         var takeCount = cafeSearch.Take ?? 50;
@@ -30,7 +30,7 @@ public class CafeService : ICafeService
         return new SearchResponse<CafeResponse>(cafes.ToList().Select(cafe => cafe.ToEntity()).ToList(), cafes.Count);
     }
 
-    public async Task<CafeResponse> GetAsync(long cafeId)
+    public async Task<CafeResponse> GetCafeAsync(long cafeId)
     {
         var cafe = await _dataContext.Cafes.FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));
         if (cafe == null)

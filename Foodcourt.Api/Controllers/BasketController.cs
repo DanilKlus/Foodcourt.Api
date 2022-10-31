@@ -31,7 +31,7 @@ namespace Foodcourt.Api.Controllers
             if (userId == null)
                 return BadRequest("User does not have ID");
             
-            var response = await _basketService.GetBasket(userId);
+            var response = await _basketService.GetBasketAsync(userId);
             return Ok(response);
         }
         
@@ -42,7 +42,7 @@ namespace Foodcourt.Api.Controllers
             if (userId == null)
                 return BadRequest("User does not have ID");
             
-            await _basketService.CleanBasket(userId);
+            await _basketService.CleanBasketAsync(userId);
             return Ok();
         }
         
@@ -53,7 +53,7 @@ namespace Foodcourt.Api.Controllers
             if (userId == null)
                 return BadRequest("User does not have ID");
             
-            var response = await _basketService.AddProduct(userId, addAddProductRequest);
+            var response = await _basketService.AddProductAsync(userId, addAddProductRequest);
             return Created("basket", response);
         }
         
@@ -64,7 +64,7 @@ namespace Foodcourt.Api.Controllers
             if (userId == null)
                 return BadRequest("User does not have ID");
             
-            await _basketService.PatchProduct(userId, productId, patchProductRequest);
+            await _basketService.PatchProductAsync(userId, productId, patchProductRequest);
             return Ok();
         }
         
@@ -75,7 +75,7 @@ namespace Foodcourt.Api.Controllers
             if (userId == null)
                 return BadRequest("User does not have ID");
             
-            await _basketService.DeleteProduct(userId, productId);
+            await _basketService.DeleteProductAsync(userId, productId);
             return Ok();
         }
     }

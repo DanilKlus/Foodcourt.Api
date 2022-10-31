@@ -5,10 +5,10 @@ namespace Foodcourt.BusinessLogic.Services.Basket;
 
 public interface IBasketService
 {
-    Task<BasketResponse> GetBasket(string userId);
-    Task<long> AddProduct(string userId, AddProductRequest addAddProductRequest);
-    Task PatchProduct(string userId, long productId, PatchProductRequest patchProductRequest);
-    Task DeleteProduct(string userId, long productId);
-    Task CleanBasket(string userId);
+    Task<BasketResponse> GetBasketAsync(string userId);
+    Task<long> AddProductAsync(string userId, AddProductRequest addAddProductRequest);
+    Task PatchProductAsync(string userId, long productId, PatchProductRequest patchProductRequest);
+    Task DeleteProductAsync(string userId, long productId);
+    Task CleanBasketAsync(string userId);
 }
 
