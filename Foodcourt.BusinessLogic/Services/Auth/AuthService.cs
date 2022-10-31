@@ -28,9 +28,6 @@ public class AuthService : IAuthService
     public async Task<AuthManagerResponse> RegisterUserAsync(UserRegisterRequest userRequest)
     {
         //TODO create google users and throw email and pass errors
-        if (userRequest == null)
-            throw new NullReferenceException("Request is null");
-        
         var appUser = new AppUser()
         {
             Email = userRequest.Email,
@@ -44,7 +41,7 @@ public class AuthService : IAuthService
         if (createUserResult.Succeeded && addRoleResult.Succeeded)
             return new AuthManagerResponse
             {
-                //TODO: confirm email and create basket 
+                //TODO: confirm email
                 Message = "User created successfully",
                 IsSuccess = true
             };

@@ -38,7 +38,10 @@ namespace Foodcourt.Api.Controllers
                 return BadRequest();
             
             var result = await _authService.RegisterUserAsync(registerRequest);
-            return Created("auth/registration", result);
+            if (result.IsSuccess)
+                return Created("auth/registration", result);
+
+            return BadRequest(result);
         }
 
         [HttpPost("login")]
@@ -99,7 +102,7 @@ namespace Foodcourt.Api.Controllers
                     ContractResolver = new DefaultContractResolver {NamingStrategy = new CamelCaseNamingStrategy()},
                     Formatting = Formatting.Indented
                 }));
-            return Redirect($"http://localhost:3000");
+            return Redirect(_configuration["FrontDomain"]);
         }
     }
 }
