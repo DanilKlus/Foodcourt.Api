@@ -78,4 +78,21 @@ public class OrderService : IOrderService
         
         return order.ToEntity();
     }
+
+    public async Task CancelOrder(string userId, long orderId)
+    {
+        //TODO: add payment and push
+        var order = await _dataContext.Orders
+            .FirstOrDefaultAsync(x => x.AppUserId == userId && x.Id.Equals(orderId));
+        if (order == null)
+            throw new Exception("todo 404!!");
+
+        if (order.Status is OrderStatus.Created or OrderStatus.InQueue or OrderStatus.Cancelled)
+            order.Status = OrderStatus.Cancelled;
+        else
+            throw new Exception("todo");
+        
+        _dataContext.Orders.Update(order);
+        await _dataContext.SaveChangesAsync();
+    }
 }

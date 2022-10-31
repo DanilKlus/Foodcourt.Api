@@ -39,7 +39,7 @@ namespace Foodcourt.Api.Controllers
         
         [HttpGet]
         [ProducesResponseType(typeof(SearchResponse<OrderResponse>), StatusCodes.Status200OK)]
-        public async Task<ActionResult> SearchOrders([FromQuery] OrderStatus status)
+        public async Task<ActionResult> SearchOrders([FromQuery] OrderStatus? status)
         {
             var userId = _userManager.GetUserId(User);
             if (userId == null)
@@ -59,6 +59,17 @@ namespace Foodcourt.Api.Controllers
             
             var response = await _orderService.GetOrder(userId, orderId);
             return Ok(response);
+        }
+        
+        [HttpDelete("{orderId:long}")]
+        public async Task<ActionResult> CancelOrder(long orderId)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return BadRequest("User does not have ID");
+            
+            await _orderService.CancelOrder(userId, orderId);
+            return Ok();
         }
     }
 }
