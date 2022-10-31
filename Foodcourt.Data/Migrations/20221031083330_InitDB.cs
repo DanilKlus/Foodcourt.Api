@@ -257,10 +257,10 @@ namespace Foodcourt.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     PaymentStatus = table.Column<int>(type: "integer", nullable: false),
-                    TotalPrice = table.Column<int>(type: "integer", nullable: false),
+                    TotalPrice = table.Column<double>(type: "double precision", nullable: false),
                     CreationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Comment = table.Column<string>(type: "text", nullable: false),
-                    AppUserId = table.Column<string>(type: "text", nullable: true),
+                    AppUserId = table.Column<string>(type: "text", nullable: false),
                     CafeId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
@@ -270,7 +270,8 @@ namespace Foodcourt.Data.Migrations
                         name: "FK_Orders_AspNetUsers_AppUserId",
                         column: x => x.AppUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Orders_Cafes_CafeId",
                         column: x => x.CafeId,
@@ -469,8 +470,7 @@ namespace Foodcourt.Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_BasketProducts_ProductId",
                 table: "BasketProducts",
-                column: "ProductId",
-                unique: true);
+                column: "ProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BasketProducts_ProductVariantId",
@@ -491,8 +491,7 @@ namespace Foodcourt.Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_OrderProducts_ProductId",
                 table: "OrderProducts",
-                column: "ProductId",
-                unique: true);
+                column: "ProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderProducts_ProductVariantId",

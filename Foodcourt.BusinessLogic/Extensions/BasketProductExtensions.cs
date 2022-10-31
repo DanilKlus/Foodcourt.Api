@@ -1,11 +1,11 @@
-﻿using Foodcourt.Data.Api.Entities.Users;
+﻿using Foodcourt.Data.Api.Entities.Orders;
+using Foodcourt.Data.Api.Entities.Users;
 using Foodcourt.Data.Api.Response;
 
 namespace Foodcourt.BusinessLogic.Extensions
 {
     public static class BasketProductExtensions
     {
-        
         public static BasketProductResponse ToEntity(this BasketProduct basketProduct)
         {
             var product = basketProduct.Product;
@@ -26,5 +26,13 @@ namespace Foodcourt.BusinessLogic.Extensions
                     : new List<ProductTypeResponse>()
             };
         }
+        
+        public static OrderProduct ToOrder(this BasketProduct basketProduct) =>
+            new OrderProduct
+            {
+                Count = basketProduct.Count,
+                ProductId = basketProduct.ProductId,
+                ProductVariantId = basketProduct.ProductVariantId,
+            };
     }
 }

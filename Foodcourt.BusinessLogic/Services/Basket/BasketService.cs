@@ -35,7 +35,7 @@ public class BasketService : IBasketService
         
         var basketResponse = new BasketResponse
         {
-            TotalPrice = products.Select(x => x.Product.Price).Sum(),
+            TotalPrice = products.Select(x => x.Product.Price * x.Count).Sum(),
             TotalProductsCount = products.Count,
             Status = basket.Status,
             CafesBaskets = new List<CafeBasket>()

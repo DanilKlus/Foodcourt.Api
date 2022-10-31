@@ -11,11 +11,7 @@ public class Product
     public string Avatar { get; set; }
     public ProductStatus Status { get; set; }
     public double Price { get; set; }
-    
-    
-    public virtual OrderProduct OrderProduct { get; set; }
-    public virtual BasketProduct BasketProduct { get; set; }
-    
+
     public long CafeId { get; set; }
     public Cafe Cafe { get; set; }
    
