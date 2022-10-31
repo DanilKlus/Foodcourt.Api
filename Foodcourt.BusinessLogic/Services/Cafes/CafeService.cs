@@ -17,7 +17,12 @@ public class CafeService : ICafeService
 
     public async Task<SearchResponse<CafeResponse>> SearchByQuery(CafeSearchRequest cafeSearch)
     {
-        var cafes = await _dataContext.Cafes.ToListAsync();
+        var skipCount = cafeSearch.Skip ?? 0;
+        var takeCount = cafeSearch.Take ?? 50;
+        var cafes = await _dataContext.Cafes
+            .Where(x => x.IsActive && x.Name.Contains(cafeSearch.Name ?? ""))
+            .Skip(skipCount).Take(takeCount)
+            .ToListAsync();
         return new SearchResponse<CafeResponse>(cafes.ToList().Select(cafe => cafe.ToEntity()).ToList(), cafes.Count);
     }
 

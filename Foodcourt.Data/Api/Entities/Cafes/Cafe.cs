@@ -11,7 +11,7 @@ public class Cafe
     public CafeStatus Status { get; set; }
     public string Avatar { get; set; }
     public string Location { get; set; }
-    public bool IsActive { get; set; }
+    public bool IsActive { get; set; } = false;
     
     public List<Order> Orders { get; set; }
     public List<Product> Products { get; set; }
