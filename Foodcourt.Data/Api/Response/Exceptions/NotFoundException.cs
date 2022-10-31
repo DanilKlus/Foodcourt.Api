@@ -7,9 +7,9 @@ public class NotFoundException : Exception
     public string Message;
     public HttpStatusCode ErrorStatus;
     
-    public NotFoundException(HttpStatusCode errorStatus, string message)
+    public NotFoundException(string message)
     {
         Message = message;
-        ErrorStatus = errorStatus;
+        ErrorStatus = HttpStatusCode.NotExtended;
     }
 }

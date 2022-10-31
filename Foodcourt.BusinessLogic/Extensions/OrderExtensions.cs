@@ -6,7 +6,7 @@ namespace Foodcourt.BusinessLogic.Extensions
     public static class OrderExtensions
     {
         public static OrderResponse ToEntity(this Order order) =>
-            new OrderResponse()
+            new()
             {
                 Id = order.Id,
                 Status = order.Status,

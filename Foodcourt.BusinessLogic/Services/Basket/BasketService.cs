@@ -92,7 +92,7 @@ public class BasketService : IBasketService
         var basketProduct = await _dataContext.BasketProducts
             .FirstOrDefaultAsync(x => x.BasketId.Equals(basket.Id) && x.Id.Equals(productId));
         if (basketProduct == null)
-            throw new NotFoundException(HttpStatusCode.NotFound, $"product: {productId} not found");
+            throw new NotFoundException($"product: {productId} not found");
 
         if (patchProductRequest.VariantId != null)
             basketProduct.ProductVariantId = (long) patchProductRequest.VariantId;

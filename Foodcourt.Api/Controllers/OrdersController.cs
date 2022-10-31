@@ -2,8 +2,8 @@
 using Foodcourt.BusinessLogic.Services.Orders;
 using Foodcourt.Data.Api;
 using Foodcourt.Data.Api.Entities.Orders;
-using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
+using Foodcourt.Data.Api.Response.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -57,8 +57,11 @@ namespace Foodcourt.Api.Controllers
             if (userId == null)
                 return BadRequest("User does not have ID");
             
-            var response = await _orderService.GetOrderAsync(userId, orderId);
-            return Ok(response);
+            try {
+                var response = await _orderService.GetOrderAsync(userId, orderId);
+                return Ok(response);
+            }
+            catch (NotFoundException e) { return NotFound(e); }
         }
         
         [HttpDelete("{orderId:long}")]
@@ -68,8 +71,11 @@ namespace Foodcourt.Api.Controllers
             if (userId == null)
                 return BadRequest("User does not have ID");
             
-            await _orderService.CancelOrderAsync(userId, orderId);
-            return Ok();
+            try {
+                await _orderService.CancelOrderAsync(userId, orderId);
+                return Ok();
+            }
+            catch (CancelOrderException e) { return BadRequest(e); }
         }
     }
 }

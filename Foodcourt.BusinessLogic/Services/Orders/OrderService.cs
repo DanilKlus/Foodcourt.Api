@@ -1,9 +1,11 @@
-﻿using Foodcourt.BusinessLogic.Extensions;
+﻿using System.Net;
+using Foodcourt.BusinessLogic.Extensions;
 using Foodcourt.Data;
 using Foodcourt.Data.Api;
 using Foodcourt.Data.Api.Entities.Orders;
 using Foodcourt.Data.Api.Entities.Users;
 using Foodcourt.Data.Api.Response;
+using Foodcourt.Data.Api.Response.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Foodcourt.BusinessLogic.Services.Orders;
@@ -19,7 +21,7 @@ public class OrderService : IOrderService
     {
         var basket = await _dataContext.Baskets.FirstOrDefaultAsync(x => x.AppUserId.Equals(userId));
         if (basket == null)
-            throw new Exception("unhandled error when get user basket (user basket is null)");
+            throw new Exception($"unhandled error when get user: {userId} basket (user basket is null)");
 
         var basketProducts = await _dataContext.BasketProducts
             .Include(x => x.ProductVariant)
@@ -74,7 +76,7 @@ public class OrderService : IOrderService
                 .ThenInclude(t => t.Product)
             .FirstOrDefaultAsync(x => x.AppUserId == userId && x.Id.Equals(orderId));
         if (order == null)
-            throw new Exception("todo 404!!");
+            throw new NotFoundException($"order {orderId} not found");
         
         return order.ToEntity();
     }
@@ -82,15 +84,13 @@ public class OrderService : IOrderService
     public async Task CancelOrderAsync(string userId, long orderId)
     {
         //TODO: add payment and push
-        var order = await _dataContext.Orders
-            .FirstOrDefaultAsync(x => x.AppUserId == userId && x.Id.Equals(orderId));
-        if (order == null)
-            throw new Exception("todo 404!!");
+        var order = await _dataContext.Orders.FirstOrDefaultAsync(x => x.AppUserId == userId && x.Id.Equals(orderId));
+        if (order == null) return;
 
-        if (order.Status is OrderStatus.Created or OrderStatus.InQueue or OrderStatus.Cancelled)
+        if (order.Status is OrderStatus.Created or OrderStatus.InQueue)
             order.Status = OrderStatus.Cancelled;
         else
-            throw new Exception("todo");
+            throw new CancelOrderException("Can't cancel order with current status", order.Status);
         
         _dataContext.Orders.Update(order);
         await _dataContext.SaveChangesAsync();
