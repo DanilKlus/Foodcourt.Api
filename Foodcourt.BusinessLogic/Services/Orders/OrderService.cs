@@ -1,5 +1,4 @@
 ﻿using Foodcourt.BusinessLogic.Extensions;
-using Foodcourt.BusinessLogic.Services.Basket;
 using Foodcourt.Data;
 using Foodcourt.Data.Api;
 using Foodcourt.Data.Api.Entities.Orders;
@@ -14,11 +13,9 @@ namespace Foodcourt.BusinessLogic.Services.Orders;
 public class OrderService : IOrderService
 {
     private readonly AppDataContext _dataContext;
-    private readonly BasketService _basketService;
-    public OrderService(AppDataContext dataContext, BasketService basketService)
+    public OrderService(AppDataContext dataContext)
     {
         _dataContext = dataContext;
-        _basketService = basketService;
     }
 
     public async Task CreateOrders(string userId)
@@ -43,6 +40,7 @@ public class OrderService : IOrderService
                     .Where(p => p.Product.CafeId.Equals(x.Product.CafeId))
                     .Select(p => p.Product.Price * p.Count).Sum(),
                 CreationTime = DateTime.UtcNow,
+                Comment = "",
                 AppUserId = userId,
                 CafeId = x.Product.CafeId,
                 OrderProducts = basketProducts
@@ -66,18 +64,26 @@ public class OrderService : IOrderService
         return order.ToEntity();
     }
 
-    public async Task<BasketResponse> RepeatOrderAsync(string userId, long orderId)
+    public async Task RepeatOrderAsync(string userId, long orderId)
     {
+        //TODO: refactor and test
+        var basket = await _dataContext.Baskets.FirstOrDefaultAsync(x => x.AppUserId.Equals(userId));
+        if (basket == null)
+            throw new Exception($"unhandled error when get user: {userId} basket (user basket is null)");
+        
         var order = await GetOrderEntityAsync(userId, orderId);
-        await _basketService.CleanBasketAsync(userId);
-        foreach (var product in order.OrderProducts)
-            await _basketService.AddProductAsync(userId, new AddProductRequest
-            {
-                Id = product.ProductId,
-                VariantId = product.ProductVariantId
-            });
+        var products = order.OrderProducts.Select(x => new BasketProduct
+        {
+            Count = x.Count, 
+            BasketId = basket.Id,
+            ProductId = x.ProductId, 
+            ProductVariantId = x.ProductVariantId,
+        }).ToList();
 
-        return await _basketService.GetBasketAsync(userId);
+        basket.Status = BasketStatus.NotEmpty;
+        _dataContext.Baskets.Update(basket);
+        _dataContext.BasketProducts.AddRange(products);
+        await _dataContext.SaveChangesAsync();
     }
 
     public async Task<SearchResponse<OrderResponse>> GetOrdersAsync(string userId, OrderStatus? orderStatus)

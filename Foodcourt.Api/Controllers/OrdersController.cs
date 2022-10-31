@@ -102,8 +102,8 @@ namespace Foodcourt.Api.Controllers
                 return BadRequest("User does not have ID");
             
             try {
-                var result = await _orderService.RepeatOrderAsync(userId, orderId);
-                return Created($"orders/{orderId}/repeat", result);
+                await _orderService.RepeatOrderAsync(userId, orderId);
+                return Created($"orders/{orderId}/repeat", "created");
             }
             catch (NotFoundException e) { return NotFound(e); }
             catch (AddProductException e) { return BadRequest(e); }

@@ -94,7 +94,7 @@ public class BasketService : IBasketService
     
     public async Task PatchProductAsync(string userId, long productId, PatchProductRequest patchProductRequest)
     {
-        var basket = GetBasketEntityAsync(userId);
+        var basket = await GetBasketEntityAsync(userId);
         var basketProduct = await _dataContext.BasketProducts
             .FirstOrDefaultAsync(x => x.BasketId.Equals(basket.Id) && x.Id.Equals(productId));
         if (basketProduct == null)
