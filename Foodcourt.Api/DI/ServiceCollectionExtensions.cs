@@ -2,6 +2,7 @@
 using Foodcourt.BusinessLogic.Services.Basket;
 using Foodcourt.BusinessLogic.Services.Cafes;
 using Foodcourt.BusinessLogic.Services.Orders;
+using Foodcourt.BusinessLogic.Services.Users;
 
 namespace Foodcourt.Api.DI
 {
@@ -14,7 +15,8 @@ namespace Foodcourt.Api.DI
                 .AddScoped<IAuthService, AuthService>()
                 .AddScoped<IBasketService, BasketService>()
                 .AddScoped<ICafeService, CafeService>()
-                .AddScoped<IOrderService, OrderService>();
+                .AddScoped<IOrderService, OrderService>()
+                .AddScoped<IUserService, UserService>();
             return services;
         }
     }
