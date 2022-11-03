@@ -8,6 +8,8 @@ public class AppUser : IdentityUser
 {
     public string Name { get; set; }
     public bool IsActive { get; set; } = true;
+    public int ConfirmationCode { get; set; }
+    public DateTime CodeExpiredTo { get; set; }
 
     public virtual Basket Basket { get; set; }
     

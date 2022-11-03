@@ -6,22 +6,29 @@ using Foodcourt.Data.Api.Entities.Users;
 using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System.Net;
+using System.Net.Mail;
+
+
 
 namespace Foodcourt.BusinessLogic.Services.Auth;
 
 public class AuthService : IAuthService
 {
+    private readonly AppDataContext _dataContext;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly IConfiguration _configuration;
     private readonly SignInManager<IdentityUser> _signInManager;
 
-    public AuthService(UserManager<IdentityUser> userManager, IConfiguration configuration, SignInManager<IdentityUser> signInManager)
+    public AuthService(UserManager<IdentityUser> userManager, IConfiguration configuration, SignInManager<IdentityUser> signInManager, AppDataContext dataContext)
     {
         _userManager = userManager;
         _configuration = configuration;
         _signInManager = signInManager;
+        _dataContext = dataContext;
     }
 
 
@@ -34,16 +41,19 @@ public class AuthService : IAuthService
             PhoneNumber = userRequest.Phone,
             Name = userRequest.Name,
             Basket = new Data.Api.Entities.Users.Basket(),
+            EmailConfirmed = false
         };
         var createUserResult = await _userManager.CreateAsync(appUser, userRequest.Password);
         var addRoleResult = await _userManager.AddToRoleAsync(appUser, _configuration["AuthSettings:DefaultUserRole"]);
         if (createUserResult.Succeeded && addRoleResult.Succeeded)
+        {
+            await SendConfirmationCode(userRequest.Email);
             return new AuthManagerResponse
             {
-                //TODO: confirm email
                 Message = "User created successfully",
                 IsSuccess = true
             };
+        }
         
         return new AuthManagerResponse
         {
@@ -55,6 +65,7 @@ public class AuthService : IAuthService
 
     public async Task<AuthManagerResponse> LoginUserAsync(UserLoginRequest userRequest)
     {
+       
         var user = await _userManager.FindByEmailAsync(userRequest.Email);
         if (user == null)
             return new AuthManagerResponse
@@ -67,6 +78,13 @@ public class AuthService : IAuthService
             return new AuthManagerResponse
             {
                 Message = "Invalid password",
+                IsSuccess = false
+            };
+        var isConfirmed = await  _userManager.IsEmailConfirmedAsync(user);
+        if (!isConfirmed)
+            return new AuthManagerResponse
+            {
+                Message = "Email not confirmed",
                 IsSuccess = false
             };
 
@@ -188,6 +206,72 @@ public class AuthService : IAuthService
             Message = "Failed to create a user from an external system",
             IsSuccess = false
         };
+    }
+
+    public async Task SendConfirmationCode(string email)
+    {
+        var user = await _dataContext.AppUsers.FirstOrDefaultAsync(x => x.Email.Equals(email));
+        if (user == null)
+            throw new Exception("user not found");
+        var confirmed = await _userManager.IsEmailConfirmedAsync(user);
+        if (confirmed)
+            throw new Exception("email confirmed");
+        
+        var confirmationCode = new Random().Next(1000, 9999);
+        var expiredTo = DateTime.UtcNow;
+        
+        user.ConfirmationCode = confirmationCode;
+        user.CodeExpiredTo = expiredTo;
+        await _userManager.UpdateAsync(user);
+        
+        var result = SendCode(email, confirmationCode, expiredTo);
+    }
+    
+    private static bool SendCode(string email, int confirmationCode, DateTime expiredTo) {
+        try
+        {
+            MailMessage message = new MailMessage();
+            SmtpClient smtp = new SmtpClient();
+            message.From = new MailAddress("klusovdanil6812@yandex.ru");
+            message.To.Add(new MailAddress(email));
+            message.Subject = "Test";
+            message.IsBodyHtml = false; //to make message body as html  
+            message.Body = "your code: " + confirmationCode.ToString() + " expired to" + expiredTo;
+            smtp.Port = 587;
+            smtp.Host = "smtp.yandex.ru"; //for gmail host  
+            smtp.EnableSsl = true;
+            smtp.UseDefaultCredentials = false;
+            smtp.Credentials = new NetworkCredential("klusovdanil6812@yandex.ru", "ilfvncehjbkywqhg");
+            smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+            smtp.Send(message);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }  
+    }  
+
+    public async Task ConfirmCode(string email, int code)
+    {
+        var user = await _dataContext.AppUsers.FirstOrDefaultAsync(x => x.Email.Equals(email));
+        if (user == null)
+            throw new Exception("user not found");
+
+        var confirmationCode = user.ConfirmationCode;
+        var expiredTo = user.CodeExpiredTo;
+
+        var t = DateTime.Now.CompareTo(expiredTo);
+
+        if (DateTime.Now.CompareTo(expiredTo) != 1)
+            throw new Exception("token expired");
+        if (!confirmationCode.Equals(code))
+            throw new Exception("code not valid");
+
+        user.EmailConfirmed = true;
+        user.ConfirmationCode = 0;
+        user.CodeExpiredTo = DateTime.UtcNow;
+        await _userManager.UpdateAsync(user);
     }
 
     private async Task<JwtSecurityToken> GenerateAccessToken(IdentityUser user, ICollection<Claim> claims)

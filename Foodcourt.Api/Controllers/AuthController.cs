@@ -74,7 +74,6 @@ namespace Foodcourt.Api.Controllers
         }
 
         [HttpPost]
-        [AllowAnonymous]
         [Route("account/external-login")]
         public IActionResult ExternalLogin(string provider, string backUrl)
         {
@@ -86,7 +85,6 @@ namespace Foodcourt.Api.Controllers
         }
         
         [HttpGet]
-        [AllowAnonymous]
         [Route("account/external-auth-callback")]
         public async Task<IActionResult> ExternalLoginCallback()
         {
@@ -104,6 +102,20 @@ namespace Foodcourt.Api.Controllers
                     Formatting = Formatting.Indented
                 }));
             return Redirect(_configuration["FrontDomain"]);
+        }
+        
+        [HttpGet("confirmation-code")]
+        public async Task<IActionResult> SendConfirmationCode([FromQuery] string email)
+        {
+            await _authService.SendConfirmationCode(email);
+            return Ok();
+        }
+        
+        [HttpPost("confirmation-code")]
+        public async Task<IActionResult> ConfirmCode([FromQuery] string email, int code)
+        {
+            await _authService.ConfirmCode(email, code);
+            return Ok();
         }
     }
 }

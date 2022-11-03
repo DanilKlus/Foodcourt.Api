@@ -10,4 +10,6 @@ public interface IAuthService
    Task<AuthManagerResponse> LoginUserAsync(UserLoginRequest userLoginRequest);
    Task<AuthManagerResponse> RefreshTokenAsync(string refreshToken, string userId);
    Task<AuthManagerResponse> ExternalLoginAsync(ExternalLoginInfo info);
+   Task SendConfirmationCode(string email);
+   Task ConfirmCode(string email, int code);
 }
