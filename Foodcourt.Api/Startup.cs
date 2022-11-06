@@ -23,7 +23,7 @@ namespace Foodcourt.Api
             {
                 var builder = new NpgsqlDbContextOptionsBuilder(options);
                 builder.SetPostgresVersion(new Version(9, 2));
-                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
+                options.UseNpgsql(Configuration["ConnectionStrings:DefaultConnection"]);
             });
 
             services.AddIdentity<IdentityUser, IdentityRole>()
@@ -103,7 +103,6 @@ namespace Foodcourt.Api
             app.UseCors(MyAllowSpecificOrigins);
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints => endpoints.MapControllers());
         }
     }

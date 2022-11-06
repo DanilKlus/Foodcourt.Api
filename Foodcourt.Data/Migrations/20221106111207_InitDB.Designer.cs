@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Foodcourt.Data.Migrations
 {
     [DbContext(typeof(AppDataContext))]
-    [Migration("20221031083330_InitDB")]
+    [Migration("20221106111207_InitDB")]
     partial class InitDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,6 +47,10 @@ namespace Foodcourt.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("Adress")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Avatar")
                         .IsRequired()
                         .HasColumnType("text");
@@ -62,9 +66,11 @@ namespace Foodcourt.Data.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<double>("Latitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("double precision");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -516,6 +522,12 @@ namespace Foodcourt.Data.Migrations
             modelBuilder.Entity("Foodcourt.Data.Api.Entities.Users.AppUser", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.Property<DateTime>("CodeExpiredTo")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ConfirmationCode")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
