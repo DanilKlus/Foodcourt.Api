@@ -41,13 +41,13 @@ public class AuthService : IAuthService
             PhoneNumber = userRequest.Phone,
             Name = userRequest.Name,
             Basket = new Data.Api.Entities.Users.Basket(),
-            EmailConfirmed = false
+            EmailConfirmed = true
         };
         var createUserResult = await _userManager.CreateAsync(appUser, userRequest.Password);
         var addRoleResult = await _userManager.AddToRoleAsync(appUser, _configuration["AuthSettings:DefaultUserRole"]);
         if (createUserResult.Succeeded && addRoleResult.Succeeded)
         {
-            await SendConfirmationCode(userRequest.Email);
+            //await SendConfirmationCode(userRequest.Email);
             return new AuthManagerResponse
             {
                 Message = "User created successfully",
