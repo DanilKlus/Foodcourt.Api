@@ -241,7 +241,7 @@ public class AuthService : IAuthService
             smtp.Host = "smtp.yandex.ru"; //for gmail host  
             smtp.EnableSsl = true;
             smtp.UseDefaultCredentials = false;
-            smtp.Credentials = new NetworkCredential("klusovdanil6812@yandex.ru", "ilfvncehjbkywqhg");
+            smtp.Credentials = new NetworkCredential("klusovdanil6812@yandex.ru", "");
             smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
             smtp.Send(message);
             return true;
