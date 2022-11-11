@@ -1,4 +1,5 @@
 ﻿using Foodcourt.Data.Api.Entities.Cafes;
+using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
 
 namespace Foodcourt.BusinessLogic.Extensions
@@ -17,6 +18,22 @@ namespace Foodcourt.BusinessLogic.Extensions
                 Adress = cafe.Adress,
                 Latitude = cafe.Latitude,
                 Longitude = cafe.Longitude
+            };
+        }
+        
+        public static Cafe FromEntity(this CafeCreateRequest cafe)
+        {
+            return new Cafe()
+            {
+                Name = cafe.Name,
+                Description = cafe.Description,
+                Adress = cafe.Adress,
+                Avatar = "",
+                Response = "",
+                Latitude = cafe.Latitude,
+                Longitude = cafe.Longitude,
+                CertifyingDocument = cafe.CertifyingDocument,
+                PersonalAccount = cafe.PersonalAccount
             };
         }
     }

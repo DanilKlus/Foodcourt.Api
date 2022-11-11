@@ -11,4 +11,5 @@ public interface ICafeService
     Task<CafeResponse> GetCafeAsync(long cafeId);
     Task<SearchResponse<ProductResponse>> GetProductsAsync(long cafeId, string? query);
     Task<ProductResponse> GetProductAsync(long cafeId, long productId);
+    Task AddCafeAsync(CafeCreateRequest request, string userId);
 }

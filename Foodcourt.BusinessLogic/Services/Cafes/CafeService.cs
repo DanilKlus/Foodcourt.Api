@@ -1,10 +1,12 @@
 ﻿using Foodcourt.BusinessLogic.Extensions;
 using Foodcourt.Data;
 using Foodcourt.Data.Api;
+using Foodcourt.Data.Api.Entities.Cafes;
 using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
 using Foodcourt.Data.Api.Response.Exceptions;
 using GeoCoordinatePortable;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Foodcourt.BusinessLogic.Services.Cafes;
@@ -12,8 +14,12 @@ namespace Foodcourt.BusinessLogic.Services.Cafes;
 public class CafeService : ICafeService
 {
     private readonly AppDataContext _dataContext;
-    public CafeService(AppDataContext dataContext) => 
+    private readonly UserManager<IdentityUser> _userManager;
+    public CafeService(AppDataContext dataContext, UserManager<IdentityUser> userManager)
+    {
         _dataContext = dataContext;
+        _userManager = userManager;
+    }
 
     public async Task<SearchResponse<CafeResponse>> GetCafesAsync(CafeSearchRequest cafeSearch)
     {
@@ -56,7 +62,15 @@ public class CafeService : ICafeService
             throw new NotFoundException($"Product with id '{productId}' in cafe with id '{cafeId}' not found");
         return product.ToEntity();
     }
-    
+
+    public async Task AddCafeAsync(CafeCreateRequest cafeRequest, string userId)
+    {
+        var user = await _dataContext.AppUsers.FirstAsync(x => x.Id.Equals(userId));
+        user.Cafes = new List<Cafe> { cafeRequest.FromEntity() };
+
+        await _dataContext.SaveChangesAsync();
+    }
+
     private static double GetDistance(double cafeLatitude, double cafeLongitude, double? userLatitude, double? userLongitude)
     {
         if (userLatitude == null || userLongitude == null) 
