@@ -49,5 +49,18 @@ namespace Foodcourt.Api.Controllers
             var result = await _userService.PatchUserAsync(userId, userRequest);
             return Ok(result);
         }
+        
+        [HttpGet("faq")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        public async Task<ActionResult> GetFaq()
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return BadRequest("User does not have ID");;
+            
+            return Ok("Faq, blablabla");
+        }
     }
 }
