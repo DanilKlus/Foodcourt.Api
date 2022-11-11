@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Foodcourt.BusinessLogic.Extensions;
+﻿using Foodcourt.BusinessLogic.Extensions;
 using Foodcourt.Data;
 using Foodcourt.Data.Api;
 using Foodcourt.Data.Api.Request;
@@ -38,10 +37,13 @@ public class CafeService : ICafeService
         return cafe.ToEntity();
     }
 
-    public async Task<SearchResponse<ProductResponse>> GetProductsAsync(long cafeId)
+    public async Task<SearchResponse<ProductResponse>> GetProductsAsync(long cafeId, string? query)
     {
         var products = await _dataContext.Products.Where(product => Equals(product.CafeId, cafeId)).ToListAsync();
-        return new SearchResponse<ProductResponse>(products.Select(product => product.ToEntity()).ToList(), products.Count);
+        var filteredProducts = products;
+        if (!string.IsNullOrEmpty(query))
+            filteredProducts = products.Where(product => product.Name.ToLower().Contains(query.ToLower())).ToList();
+        return new SearchResponse<ProductResponse>(filteredProducts.Select(product => product.ToEntity()).ToList(), filteredProducts.Count);
     }
 
     public async Task<ProductResponse> GetProductAsync(long cafeId, long productId)

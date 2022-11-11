@@ -6,6 +6,7 @@ using Foodcourt.Data.Api.Response;
 using Foodcourt.Data.Api.Response.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace Foodcourt.Api.Controllers
 {
@@ -41,9 +42,9 @@ namespace Foodcourt.Api.Controllers
         
         [HttpGet("{cafeId:long}/products")]
         [ProducesResponseType(typeof(SearchResponse<ProductResponse>), StatusCodes.Status200OK)]
-        public async Task<ActionResult> GetCafeProducts(long cafeId)
+        public async Task<ActionResult> GetCafeProducts(long cafeId, [FromQuery] string? query)
         {
-            var response = await _cafeService.GetProductsAsync(cafeId);
+            var response = await _cafeService.GetProductsAsync(cafeId, query);
             return Ok(response);
         }
         

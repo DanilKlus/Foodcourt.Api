@@ -9,6 +9,6 @@ public interface ICafeService
 {
     Task<SearchResponse<CafeResponse>> GetCafesAsync(CafeSearchRequest cafeSearch);
     Task<CafeResponse> GetCafeAsync(long cafeId);
-    Task<SearchResponse<ProductResponse>> GetProductsAsync(long cafeId);
+    Task<SearchResponse<ProductResponse>> GetProductsAsync(long cafeId, string? query);
     Task<ProductResponse> GetProductAsync(long cafeId, long productId);
 }
