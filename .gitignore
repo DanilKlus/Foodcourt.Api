@@ -9,8 +9,8 @@
 *.dll.config
 *.cache
 *.suo
-**/appsettings.json
-**/appsettings.Development.json
+.Foodcourt.Api/appsettings.json
+.Foodcourt.Api/appsettings.Development.json
 # Include dlls if they’re in the NuGet packages directory
 !/packages/*/lib/*.dll
 !/packages/*/lib/*/*.dll
