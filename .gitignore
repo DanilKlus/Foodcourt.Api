@@ -26,7 +26,6 @@ bin/
 obj/
 vs/
 idea/
-Foodcourt.Api/appsettings.json
 .idea
 .vs
 TestResults/
@@ -75,6 +74,7 @@ NuGet.exe
 _[Ss]cripts
 *.exe
 *.dll
+*.json
 *.nupkg
 *.ncrunchsolution
 *.dot[Cc]over
