@@ -41,13 +41,14 @@ public class AuthService : IAuthService
             PhoneNumber = userRequest.Phone,
             Name = userRequest.Name,
             Basket = new Data.Api.Entities.Users.Basket(),
-            EmailConfirmed = true
+            EmailConfirmed = !Convert.ToBoolean(_configuration["Email:IsActive"])
         };
         var createUserResult = await _userManager.CreateAsync(appUser, userRequest.Password);
         var addRoleResult = await _userManager.AddToRoleAsync(appUser, _configuration["AuthSettings:DefaultUserRole"]);
         if (createUserResult.Succeeded && addRoleResult.Succeeded)
         {
-            //await SendConfirmationCode(userRequest.Email);
+            if (Convert.ToBoolean(_configuration["Email:IsActive"]))
+                await SendConfirmationCode(userRequest.Email);
             return new AuthManagerResponse
             {
                 Message = "User created successfully",
@@ -227,21 +228,21 @@ public class AuthService : IAuthService
         var result = SendCode(email, confirmationCode, expiredTo);
     }
     
-    private static bool SendCode(string email, int confirmationCode, DateTime expiredTo) {
+    private bool SendCode(string email, int confirmationCode, DateTime expiredTo) {
         try
         {
             MailMessage message = new MailMessage();
             SmtpClient smtp = new SmtpClient();
-            message.From = new MailAddress("klusovdanil6812@yandex.ru");
+            message.From = new MailAddress(_configuration["Email:Address"]);
             message.To.Add(new MailAddress(email));
-            message.Subject = "Test";
+            message.Subject = "Confirm your email";
             message.IsBodyHtml = false; //to make message body as html  
-            message.Body = "your code: " + confirmationCode.ToString() + " expired to" + expiredTo;
+            message.Body = "your code: " + confirmationCode + " expired to: " + expiredTo;
             smtp.Port = 587;
             smtp.Host = "smtp.yandex.ru"; //for gmail host  
             smtp.EnableSsl = true;
             smtp.UseDefaultCredentials = false;
-            smtp.Credentials = new NetworkCredential("", "");
+            smtp.Credentials = new NetworkCredential(_configuration["Email:Address"], _configuration["Email:Password"]);
             smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
             smtp.Send(message);
             return true;
