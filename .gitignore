@@ -9,6 +9,8 @@
 *.dll.config
 *.cache
 *.suo
+**/appsettings.json
+**/appsettings.Development.json
 # Include dlls if they’re in the NuGet packages directory
 !/packages/*/lib/*.dll
 !/packages/*/lib/*/*.dll
@@ -74,7 +76,6 @@ NuGet.exe
 _[Ss]cripts
 *.exe
 *.dll
-*.json
 *.nupkg
 *.ncrunchsolution
 *.dot[Cc]over
