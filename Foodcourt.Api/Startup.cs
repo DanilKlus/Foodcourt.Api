@@ -12,8 +12,7 @@ namespace Foodcourt.Api
     public class Startup
     {
         private IConfiguration Configuration { get; }
-        private const string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-
+        private readonly string FrontSpecificOrigins = "_frontSpecificOrigins";
         public Startup(IConfiguration configuration) =>
             Configuration = configuration;
 
@@ -76,14 +75,7 @@ namespace Foodcourt.Api
             services.AddControllers()
                 .ConfigureJson();
             services.AddSystemServices();
-            services.AddCors(options =>
-            {
-                options.AddPolicy(name: MyAllowSpecificOrigins,
-                    builder =>
-                    {
-                        builder.WithOrigins("*");
-                    });
-            });
+            services.AddServiceCors();
             services.AddSwaggerDocument(doc => doc.Title = "Foodcourt.Api");
         }
 
@@ -100,7 +92,7 @@ namespace Foodcourt.Api
 
             app.UseHttpsRedirection();
             app.UseRouting();
-            app.UseCors(MyAllowSpecificOrigins);
+            app.UseCors(FrontSpecificOrigins);
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints => endpoints.MapControllers());

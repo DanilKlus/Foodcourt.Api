@@ -19,5 +19,22 @@ namespace Foodcourt.Api.DI
                 .AddScoped<IUserService, UserService>();
             return services;
         }
+        
+        private const string FrontSpecificOrigins = "_frontSpecificOrigins";
+        public static IServiceCollection AddServiceCors(this IServiceCollection services)
+        {
+            services.AddCors(
+                option =>
+                {
+                    option.AddPolicy(
+                        FrontSpecificOrigins,
+                        builder =>
+                            builder.AllowAnyOrigin()
+                                .AllowAnyMethod()
+                                .AllowAnyHeader()
+                                .AllowCredentials());
+                });
+            return services;
+        }
     }
 }
