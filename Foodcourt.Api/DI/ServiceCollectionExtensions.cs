@@ -29,9 +29,10 @@ namespace Foodcourt.Api.DI
                     option.AddPolicy(
                         FrontSpecificOrigins,
                         builder =>
-                            builder.WithOrigins("localhost")
+                            builder.WithOrigins("http://localhost:19006", "http://localhost:3000")
                                 .AllowAnyMethod()
-                                .AllowAnyHeader());
+                                .AllowAnyHeader()
+                                .AllowCredentials());
                 });
             return services;
         }
