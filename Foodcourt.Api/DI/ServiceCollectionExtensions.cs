@@ -31,8 +31,7 @@ namespace Foodcourt.Api.DI
                         builder =>
                             builder.AllowAnyOrigin()
                                 .AllowAnyMethod()
-                                .AllowAnyHeader()
-                                .AllowCredentials());
+                                .AllowAnyHeader());
                 });
             return services;
         }
