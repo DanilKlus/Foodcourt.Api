@@ -29,7 +29,7 @@ namespace Foodcourt.Api.DI
                     option.AddPolicy(
                         FrontSpecificOrigins,
                         builder =>
-                            builder.AllowAnyOrigin()
+                            builder.WithOrigins("localhost")
                                 .AllowAnyMethod()
                                 .AllowAnyHeader());
                 });
