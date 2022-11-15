@@ -37,6 +37,7 @@ public class AuthService : IAuthService
 
     public async Task<AuthManagerResponse> RegisterUserAsync(UserRegisterRequest userRequest)
     {
+        consoleLog.Info($"Registration request:'{userRequest.Email}'.");
         var appUser = new AppUser()
         {
             Email = userRequest.Email,
@@ -70,7 +71,7 @@ public class AuthService : IAuthService
 
     public async Task<AuthManagerResponse> LoginUserAsync(UserLoginRequest userRequest)
     {
-       
+        consoleLog.Info($"Authentication request:'{userRequest.Email}'.");
         var user = await _userManager.FindByEmailAsync(userRequest.Email);
         if (user == null)
             return new AuthManagerResponse
