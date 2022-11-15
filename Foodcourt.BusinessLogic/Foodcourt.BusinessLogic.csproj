@@ -18,10 +18,8 @@
       <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.10" />
       <PackageReference Include="Microsoft.AspNetCore.Mvc.WebApiCompatShim" Version="2.2.0" />
       <PackageReference Include="NSwag.AspNetCore" Version="13.17.0" />
-      <PackageReference Include="Vostok.Configuration" Version="0.1.42" />
-      <PackageReference Include="Vostok.Configuration.Sources.Json" Version="0.1.6" />
+      <PackageReference Include="Vostok.Logging.Abstractions" Version="1.0.30" />
       <PackageReference Include="Vostok.Logging.Console" Version="1.0.9" />
-      <PackageReference Include="Vostok.Logging.File" Version="1.0.22" />
     </ItemGroup>
 
 </Project>

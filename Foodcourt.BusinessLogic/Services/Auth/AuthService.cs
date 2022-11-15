@@ -11,19 +11,22 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Net;
 using System.Net.Mail;
-
+using Vostok.Logging.Abstractions;
+using Vostok.Logging.Console;
 
 
 namespace Foodcourt.BusinessLogic.Services.Auth;
 
 public class AuthService : IAuthService
 {
+    private SynchronousConsoleLog consoleLog = new SynchronousConsoleLog();
     private readonly AppDataContext _dataContext;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly IConfiguration _configuration;
     private readonly SignInManager<IdentityUser> _signInManager;
 
-    public AuthService(UserManager<IdentityUser> userManager, IConfiguration configuration, SignInManager<IdentityUser> signInManager, AppDataContext dataContext)
+    public AuthService(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, AppDataContext dataContext, 
+        IConfiguration configuration)
     {
         _userManager = userManager;
         _configuration = configuration;
@@ -34,6 +37,7 @@ public class AuthService : IAuthService
 
     public async Task<AuthManagerResponse> RegisterUserAsync(UserRegisterRequest userRequest)
     {
+        consoleLog.Info($"Registration request:'{userRequest.Email}'.");
         var appUser = new AppUser()
         {
             Email = userRequest.Email,
@@ -47,6 +51,7 @@ public class AuthService : IAuthService
         var addRoleResult = await _userManager.AddToRoleAsync(appUser, _configuration["AuthSettings:DefaultUserRole"]);
         if (createUserResult.Succeeded && addRoleResult.Succeeded)
         {
+            consoleLog.Info($"Registered user with email'{userRequest.Email}'.");
             if (Convert.ToBoolean(_configuration["Email:IsActive"]))
                 await SendConfirmationCode(userRequest.Email);
             return new AuthManagerResponse
@@ -66,7 +71,7 @@ public class AuthService : IAuthService
 
     public async Task<AuthManagerResponse> LoginUserAsync(UserLoginRequest userRequest)
     {
-       
+        consoleLog.Info($"Authentication request:'{userRequest.Email}'.");
         var user = await _userManager.FindByEmailAsync(userRequest.Email);
         if (user == null)
             return new AuthManagerResponse
@@ -95,6 +100,7 @@ public class AuthService : IAuthService
         await _userManager.SetAuthenticationTokenAsync(user, _configuration["AuthSettings:ApiTokenProvider"], "RefreshToken", refreshToken);
         
         var tokenAsString = new JwtSecurityTokenHandler().WriteToken(token);
+        consoleLog.Info($"Authenticated with email'{userRequest.Email}'.");
         return new AuthLoginResponse
         {
             Message = "User has been successfully authenticated",
