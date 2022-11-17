@@ -43,12 +43,15 @@ public class CafeService : ICafeService
         return cafe.ToEntity();
     }
 
-    public async Task<SearchResponse<ProductResponse>> GetProductsAsync(long cafeId, string? query)
+    public async Task<SearchResponse<ProductResponse>> GetProductsAsync(long cafeId, string? query, int? skip, int? take)
     {
+        var skipCount = skip ?? 0;
+        var takeCount = take ?? 50;
         var products = await _dataContext.Products.Where(product => Equals(product.CafeId, cafeId)).ToListAsync();
         var filteredProducts = products;
         if (!string.IsNullOrEmpty(query))
-            filteredProducts = products.Where(product => product.Name.ToLower().Contains(query.ToLower())).ToList();
+            filteredProducts = products.Where(product => product.Name.ToLower().Contains(query.ToLower())).
+                Skip(skipCount).Take(takeCount).ToList();
         return new SearchResponse<ProductResponse>(filteredProducts.Select(product => product.ToEntity()).ToList(), filteredProducts.Count);
     }
 

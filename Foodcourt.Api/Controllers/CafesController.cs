@@ -46,9 +46,10 @@ namespace Foodcourt.Api.Controllers
         
         [HttpGet("{cafeId:long}/products")]
         [ProducesResponseType(typeof(SearchResponse<ProductResponse>), StatusCodes.Status200OK)]
-        public async Task<ActionResult> GetCafeProducts(long cafeId, [FromQuery] string? query)
+        public async Task<ActionResult> GetCafeProducts(long cafeId, [FromQuery] string? query, 
+            [FromQuery] int? skip, [FromQuery] int? take)
         {
-            var response = await _cafeService.GetProductsAsync(cafeId, query);
+            var response = await _cafeService.GetProductsAsync(cafeId, query, skip, take);
             return Ok(response);
         }
         
