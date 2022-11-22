@@ -100,7 +100,7 @@ namespace Foodcourt.Api.Controllers
                 {
                     ContractResolver = new DefaultContractResolver {NamingStrategy = new CamelCaseNamingStrategy()},
                     Formatting = Formatting.Indented
-                }));
+                }), new CookieOptions() {Domain = "https://foodcourt-static.website.yandexcloud.net"});
             return Redirect(_configuration["FrontDomain"]);
         }
         

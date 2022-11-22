@@ -82,13 +82,12 @@ namespace Foodcourt.Api
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage()
-                    .UseSwagger()
-                    .UseSwaggerUi3()
-                    .UseOpenApi();
-            }
+            
+            app.UseDeveloperExceptionPage()
+                .UseSwagger()
+                .UseSwaggerUi3()
+                .UseOpenApi();
+            
 
             app.UseHttpsRedirection();
             app.UseRouting();
