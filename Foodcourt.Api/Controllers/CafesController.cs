@@ -84,5 +84,19 @@ namespace Foodcourt.Api.Controllers
             await _cafeService.AddCafeAsync(request, userId);
             return Created("/cafes", "cafe created");
         }
+        
+        [Authorize(Roles = "admin, user")]
+        [HttpPost("approve/{cafeId:long}")]
+        [ProducesResponseType(typeof(NotFoundException), StatusCodes.Status404NotFound)]        
+        public async Task<ActionResult> ApproveCafe(long cafeId)
+        {
+            if (!ModelState.IsValid) return BadRequest("Model not valid");
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return BadRequest("User does not have ID");
+            
+            await _cafeService.ApproveCafeAsync(cafeId);
+            return Ok();
+        }
     }
 }

@@ -234,6 +234,7 @@ public class AuthService : IAuthService
         var result = SendCode(email, confirmationCode, expiredTo);
     }
     
+    //TODO: SRP (email service)
     private bool SendCode(string email, int confirmationCode, DateTime expiredTo) {
         try
         {

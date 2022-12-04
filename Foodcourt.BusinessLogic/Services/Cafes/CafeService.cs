@@ -80,6 +80,17 @@ public class CafeService : ICafeService
         await _dataContext.SaveChangesAsync();
     }
 
+    public async Task ApproveCafeAsync(long cafeId)
+    {
+        var cafe = await _dataContext.Cafes.FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));
+        if (cafe == null)
+            throw new NotFoundException($"Cafe with id '{cafeId}' not found");
+        
+        cafe.IsActive = true;
+        _dataContext.Cafes.Update(cafe);
+        await _dataContext.SaveChangesAsync();
+    }
+
     private static double GetDistance(double cafeLatitude, double cafeLongitude, double? userLatitude, double? userLongitude)
     {
         if (userLatitude == null || userLongitude == null) 

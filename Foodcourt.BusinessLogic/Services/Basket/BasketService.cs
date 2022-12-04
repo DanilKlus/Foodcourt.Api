@@ -71,7 +71,7 @@ public class BasketService : IBasketService
             .Where(x => x.BasketId.Equals(basket.Id))
             .Select(x => x.ProductId)
             .ContainsAsync(addAddProductRequest.Id);
-        if (productIsAdded)
+        if (productIsAdded) //TODO: catch exc
             throw new AddProductException("Product has already been added to the basket", addAddProductRequest.Id);
         if (basket.Status == BasketStatus.Empty)
         {
@@ -84,7 +84,7 @@ public class BasketService : IBasketService
             Count = 1, 
             BasketId = basket.Id,
             ProductId = addAddProductRequest.Id, 
-            ProductVariantId = addAddProductRequest.VariantId ?? 1L
+            ProductVariantId = addAddProductRequest.VariantId ?? 1L //TODO: убрать этот костыль когда-нибудь
         };
 
         var result = _dataContext.BasketProducts.Add(basketProduct);
