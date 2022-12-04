@@ -8,6 +8,7 @@ using Foodcourt.Data.Api.Response.Exceptions;
 using GeoCoordinatePortable;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Foodcourt.BusinessLogic.Services.Cafes;
 
@@ -15,10 +16,12 @@ public class CafeService : ICafeService
 {
     private readonly AppDataContext _dataContext;
     private readonly UserManager<IdentityUser> _userManager;
-    public CafeService(AppDataContext dataContext, UserManager<IdentityUser> userManager)
+    private readonly IConfiguration _configuration;
+    public CafeService(AppDataContext dataContext, UserManager<IdentityUser> userManager, IConfiguration configuration)
     {
         _dataContext = dataContext;
         _userManager = userManager;
+        _configuration = configuration;
     }
 
     public async Task<SearchResponse<CafeResponse>> GetCafesAsync(CafeSearchRequest cafeSearch)
@@ -82,11 +85,47 @@ public class CafeService : ICafeService
 
     public async Task ApproveCafeAsync(long cafeId)
     {
-        var cafe = await _dataContext.Cafes.FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));
+        var cafe = await _dataContext.Cafes.Include(x => x.AppUsers).FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));
         if (cafe == null)
             throw new NotFoundException($"Cafe with id '{cafeId}' not found");
         
         cafe.IsActive = true;
+        var user = cafe.AppUsers.First();
+        
+        _dataContext.Cafes.Update(cafe);
+        await _dataContext.SaveChangesAsync();
+        await _userManager.AddToRoleAsync(user, _configuration["Roles:Director"]);
+    }
+
+    public async Task PatchCafeAsync(PatchCafeRequest request, string userId, long cafeId)
+    {
+        var cafe = await _dataContext.Cafes.Include(x => x.AppUsers).FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));
+        if (cafe == null)
+            throw new NotFoundException($"Cafe with id '{cafeId}' not found");
+        if (!cafe.AppUsers.Select(x => x.Id).Contains(userId))
+            throw new NotHaveAccessException("the user does not have access to the cafe");
+
+        if (request.Name != null)
+            cafe.Name = request.Name;
+        if (request.Description != null)
+            cafe.Description = request.Description;
+        if (request.PersonalAccount != null)
+            cafe.PersonalAccount = request.PersonalAccount;
+
+        _dataContext.Cafes.Update(cafe);
+        await _dataContext.SaveChangesAsync();
+    }
+
+    public async Task DeleteCafeAsync(string userId, long cafeId)
+    {
+        var cafe = await _dataContext.Cafes.Include(x => x.AppUsers).FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));
+        if (cafe == null)
+            throw new NotFoundException($"Cafe with id '{cafeId}' not found");
+        if (!cafe.AppUsers.Select(x => x.Id).Contains(userId))
+            throw new NotHaveAccessException("the user does not have access to the cafe");
+
+        cafe.IsActive = false;
+
         _dataContext.Cafes.Update(cafe);
         await _dataContext.SaveChangesAsync();
     }

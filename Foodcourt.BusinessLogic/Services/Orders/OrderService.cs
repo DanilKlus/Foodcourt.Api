@@ -18,7 +18,7 @@ public class OrderService : IOrderService
         _dataContext = dataContext;
     }
 
-    public async Task CreateOrders(string userId)
+    public async Task CreateOrdersAsync(string userId)
     {
         var basket = await _dataContext.Baskets.FirstOrDefaultAsync(x => x.AppUserId.Equals(userId));
         if (basket == null)
@@ -86,10 +86,29 @@ public class OrderService : IOrderService
         await _dataContext.SaveChangesAsync();
     }
 
-    public async Task<SearchResponse<OrderResponse>> GetOrdersAsync(string userId, OrderStatus? orderStatus)
+    public async Task PayOrdersAsync(string userId, List<long> ordersIds)
     {
+        var orders = await _dataContext.Orders.Where(x => x.AppUserId.Equals(userId) && ordersIds.Contains(x.Id)).ToListAsync();
+        
+        var payedOrders = new List<Order>();
+        foreach (var order in orders)
+        {
+            order.Status = OrderStatus.InQueue;
+            order.PaymentStatus = PaymentStatus.Paid;
+            payedOrders.Add(order);
+        }
+        
+        _dataContext.Orders.UpdateRange(payedOrders);
+        await _dataContext.SaveChangesAsync();
+    }
+
+    public async Task<SearchResponse<OrderResponse>> GetOrdersAsync(string userId, OrderStatus? orderStatus, SearchRequest searchRequest)
+    {
+        var skipCount = searchRequest.Skip ?? 0;
+        var takeCount = searchRequest.Take ?? 50;
         var ordersResult = await _dataContext.Orders.Where(x => x.AppUserId == userId).ToListAsync();
-        var orders = orderStatus != null ? ordersResult.Where(x => x.Status == orderStatus).ToList() : ordersResult;
+        var orders = (orderStatus != null ? ordersResult.Where(x => x.Status == orderStatus) : ordersResult)
+            .Skip(skipCount).Take(takeCount).ToList();
 
         return new SearchResponse<OrderResponse>
         {
@@ -112,7 +131,7 @@ public class OrderService : IOrderService
         if (order.Status is OrderStatus.Created or OrderStatus.InQueue)
             order.Status = OrderStatus.Cancelled;
         else
-            throw new CancelOrderException("Can't cancel order with current status", order.Status);
+            throw new CancelOrderException("Can't cancel order with current status", order.Status); 
         
         _dataContext.Orders.Update(order);
         await _dataContext.SaveChangesAsync();

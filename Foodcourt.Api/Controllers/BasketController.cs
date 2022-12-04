@@ -68,7 +68,7 @@ namespace Foodcourt.Api.Controllers
                 await _basketService.PatchProductAsync(userId, productId, patchProductRequest);
                 return Ok();
             }
-            catch (NotFoundException e) { return NotFound(e); }
+            catch (NotFoundException e) { return NotFound(e.Message); }
         }
         
         [HttpDelete("{productId:long}")]

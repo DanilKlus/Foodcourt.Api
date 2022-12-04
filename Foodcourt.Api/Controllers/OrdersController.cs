@@ -33,7 +33,7 @@ namespace Foodcourt.Api.Controllers
             if (userId == null)
                 return BadRequest("User does not have ID");
             
-            await _orderService.CreateOrders(userId);
+            await _orderService.CreateOrdersAsync(userId);
             return Created("orders", userId);
         }
         
@@ -49,18 +49,18 @@ namespace Foodcourt.Api.Controllers
                 var result = await _orderService.PatchOrderAsync(userId, orderId, patchRequest);
                 return Ok(result);
             }
-            catch (NotFoundException e) { return NotFound(e); }
+            catch (NotFoundException e) { return NotFound(e.Message); }
         }
         
         [HttpGet]
         [ProducesResponseType(typeof(SearchResponse<OrderResponse>), StatusCodes.Status200OK)]
-        public async Task<ActionResult> SearchOrders([FromQuery] OrderStatus? status)
+        public async Task<ActionResult> SearchOrders([FromQuery] OrderStatus? status, [FromQuery] SearchRequest searchRequest)
         {
             var userId = _userManager.GetUserId(User);
             if (userId == null)
                 return BadRequest("User does not have ID");
             
-            var response = await _orderService.GetOrdersAsync(userId, status);
+            var response = await _orderService.GetOrdersAsync(userId, status, searchRequest);
             return Ok(response);
         }
         
@@ -76,7 +76,19 @@ namespace Foodcourt.Api.Controllers
                 var response = await _orderService.GetOrderAsync(userId, orderId);
                 return Ok(response);
             }
-            catch (NotFoundException e) { return NotFound(e); }
+            catch (NotFoundException e) { return NotFound(e.Message); }
+        }
+        
+        [HttpPost("pay")]
+        public async Task<ActionResult> PayOrders([FromQuery] List<long> ordersIds)
+        {
+            //mock method
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return BadRequest("User does not have ID");
+            
+            await _orderService.PayOrdersAsync(userId, ordersIds);
+            return Ok();
         }
         
         //TODO: add payment and push
@@ -91,7 +103,7 @@ namespace Foodcourt.Api.Controllers
                 await _orderService.CancelOrderAsync(userId, orderId);
                 return Ok();
             }
-            catch (CancelOrderException e) { return BadRequest(e); }
+            catch (CancelOrderException e) { return BadRequest(e.Message); }
         }
         
         [HttpPost("{orderId:long}/repeat")]
@@ -105,8 +117,8 @@ namespace Foodcourt.Api.Controllers
                 await _orderService.RepeatOrderAsync(userId, orderId);
                 return Created($"orders/{orderId}/repeat", "created");
             }
-            catch (NotFoundException e) { return NotFound(e); }
-            catch (AddProductException e) { return BadRequest(e); }
+            catch (NotFoundException e) { return NotFound(e.Message); }
+            catch (AddProductException e) { return BadRequest(e.Message); }
         }
     }
 }
