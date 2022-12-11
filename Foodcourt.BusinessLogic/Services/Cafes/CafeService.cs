@@ -29,13 +29,20 @@ public class CafeService : ICafeService
         var skipCount = cafeSearch.Skip ?? 0;
         var takeCount = cafeSearch.Take ?? 50;
         var cafesEntities = await _dataContext.Cafes.ToListAsync();
+        var cafeToDistance = new Dictionary<long, double>();
         var cafes = cafesEntities.
-            OrderBy(x => GetDistance(x.Latitude, x.Longitude, cafeSearch.Latitude, cafeSearch.Longitude))
+            OrderBy(x =>
+            {
+                var distance = GetDistance(x.Latitude, x.Longitude, cafeSearch.Latitude, cafeSearch.Longitude);
+                cafeToDistance[x.Id] = distance;
+                return distance;
+
+            })
             .Where(x => x.IsActive && x.Name.Contains(cafeSearch.Name ?? ""))
             .Skip(skipCount).Take(takeCount)
             .ToList();
             
-        return new SearchResponse<CafeResponse>(cafes.ToList().Select(cafe => cafe.ToEntity()).ToList(), cafes.Count);
+        return new SearchResponse<CafeResponse>(cafes.ToList().Select(cafe => cafe.ToEntity(cafeToDistance[cafe.Id])).ToList(), cafes.Count);
     }
 
     public async Task<CafeResponse> GetCafeAsync(long cafeId)

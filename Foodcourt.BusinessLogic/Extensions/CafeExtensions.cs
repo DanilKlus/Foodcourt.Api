@@ -12,12 +12,22 @@ namespace Foodcourt.BusinessLogic.Extensions
             {
                 Id = cafe.Id,
                 Name = cafe.Name,
-                Description = cafe.Description,
-                Status = cafe.Status,
                 Avatar = cafe.Avatar,
                 Adress = cafe.Adress,
-                Latitude = cafe.Latitude,
-                Longitude = cafe.Longitude
+            };
+        }
+        
+        public static CafeResponse ToEntity(this Cafe cafe, double distance)
+        {
+            var dist = Math.Round(distance);
+            var stringDist = dist < 1000 ? $"{(int)dist} м" : $"{Math.Round(dist/1000, 1)} км";
+            return new CafeResponse()
+            {
+                Id = cafe.Id,
+                Name = cafe.Name,
+                Avatar = cafe.Avatar,
+                Adress = cafe.Adress,
+                Distance = stringDist
             };
         }
         
