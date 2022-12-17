@@ -38,7 +38,6 @@ namespace Foodcourt.BusinessLogic.Extensions
             return new Cafe()
             {
                 Name = cafe.Name,
-                Description = cafe.Description,
                 Adress = cafe.Adress,
                 Avatar = "",
                 Response = "",

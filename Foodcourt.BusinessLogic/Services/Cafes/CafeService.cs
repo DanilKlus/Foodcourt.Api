@@ -114,8 +114,6 @@ public class CafeService : ICafeService
 
         if (request.Name != null)
             cafe.Name = request.Name;
-        if (request.Description != null)
-            cafe.Description = request.Description;
         if (request.PersonalAccount != null)
             cafe.PersonalAccount = request.PersonalAccount;
 
