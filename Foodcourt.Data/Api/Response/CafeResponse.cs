@@ -9,4 +9,5 @@ public class CafeResponse
     public string Distance { get; set; }
     public string Avatar { get; set; }
     public string Adress { get; set; }
+    public double Rating { get; set; }
 }

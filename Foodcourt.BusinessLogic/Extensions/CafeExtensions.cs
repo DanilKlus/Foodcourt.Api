@@ -14,6 +14,7 @@ namespace Foodcourt.BusinessLogic.Extensions
                 Name = cafe.Name,
                 Avatar = cafe.Avatar,
                 Adress = cafe.Adress,
+                Rating = cafe.Rating
             };
         }
         
@@ -27,7 +28,8 @@ namespace Foodcourt.BusinessLogic.Extensions
                 Name = cafe.Name,
                 Avatar = cafe.Avatar,
                 Adress = cafe.Adress,
-                Distance = stringDist
+                Distance = stringDist,
+                Rating = cafe.Rating
             };
         }
         
