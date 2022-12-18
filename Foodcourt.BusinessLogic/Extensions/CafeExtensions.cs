@@ -41,6 +41,7 @@ namespace Foodcourt.BusinessLogic.Extensions
                 Adress = cafe.Adress,
                 Avatar = "",
                 Response = "",
+                Rating = cafe.Rating,
                 Latitude = cafe.Latitude,
                 Longitude = cafe.Longitude,
                 CertifyingDocument = cafe.CertifyingDocument,

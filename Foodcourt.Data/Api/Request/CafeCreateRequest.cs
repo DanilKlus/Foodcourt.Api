@@ -6,6 +6,7 @@ public class CafeCreateRequest
     public string Adress { get; set; }
     public double Latitude { get; set; }
     public double Longitude { get; set; }
+    public string Rating { get; set; }
     public string CertifyingDocument { get; set; }
     public string PersonalAccount { get; set; }
 }
