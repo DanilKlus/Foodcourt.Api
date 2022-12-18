@@ -1,6 +1,7 @@
 ﻿using System.Net.Mime;
 using Foodcourt.BusinessLogic.Services.Cafes;
 using Foodcourt.Data.Api;
+using Foodcourt.Data.Api.Entities.Users;
 using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
 using Foodcourt.Data.Api.Response.Exceptions;
@@ -10,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Foodcourt.Api.Controllers
 {
-    [Authorize(Roles = "user")]
+    [Authorize(Roles = CustomRoles.User)]
     [ApiController]
     [Produces(MediaTypeNames.Application.Json)]
     [Route("v1.0/[controller]")]
@@ -85,7 +86,7 @@ namespace Foodcourt.Api.Controllers
             return Created("/cafes", "cafe created");
         }
         
-        [Authorize(Roles = "admin, user")]
+        [Authorize(Roles = CustomRoles.Administrator)]
         [HttpPost("{cafeId:long}/approve")]
         [ProducesResponseType(typeof(NotFoundException), StatusCodes.Status404NotFound)]        
         public async Task<ActionResult> ApproveCafe(long cafeId)
@@ -100,7 +101,7 @@ namespace Foodcourt.Api.Controllers
         }
         
         [HttpPatch("{cafeId:long}")]
-        [Authorize(Roles = "director, user")]
+        [Authorize(Roles = CustomRoles.Director)]
         [ProducesResponseType(typeof(CafeResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(NotFoundException), StatusCodes.Status404NotFound)]        
         public async Task<ActionResult> PatchCafe([FromBody]PatchCafeRequest request, long cafeId)
@@ -126,7 +127,7 @@ namespace Foodcourt.Api.Controllers
         }
 
         [HttpDelete("{cafeId:long}")]
-        [Authorize(Roles = "director, user")]
+        [Authorize(Roles = CustomRoles.Director)]
         [ProducesResponseType(typeof(CafeResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(NotFoundException), StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteCafe(long cafeId)
