@@ -1,7 +1,4 @@
-﻿using Foodcourt.Data.Api.Entities.Orders;
-using Foodcourt.Data.Api.Entities.Users;
-
-namespace Foodcourt.Data.Api.Entities.Cafes;
+﻿namespace Foodcourt.Data.Api.Entities.Cafes;
 
 public class Product
 { 
@@ -11,6 +8,11 @@ public class Product
     public string Avatar { get; set; }
     public ProductStatus Status { get; set; }
     public double Price { get; set; }
+    public double Proteins { get; set; }
+    public double Fats { get; set; }
+    public double Carbohydrates { get; set; }
+    public double Weight { get; set; }
+    public double Kcal { get; set; }
 
     public long CafeId { get; set; }
     public Cafe Cafe { get; set; }

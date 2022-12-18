@@ -17,6 +17,11 @@ namespace Foodcourt.BusinessLogic.Extensions
                 Status = product.Status,
                 Price = product.Price,
                 CafeId = product.CafeId,
+                Proteins = product.Proteins,
+                Fats = product.Fats,
+                Carbohydrates = product.Carbohydrates,
+                Weight = product.Weight,
+                Kcal = product.Kcal,
                 ProductVariants = product.ProductVariants != null 
                     ? product.ProductVariants.Select(p => new ProductVariantResponse(p.Id, p.Variant)).ToList()
                     : new List<ProductVariantResponse>(),
