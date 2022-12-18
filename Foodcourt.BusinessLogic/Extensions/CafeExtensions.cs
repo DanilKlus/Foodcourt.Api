@@ -48,5 +48,33 @@ namespace Foodcourt.BusinessLogic.Extensions
                 PersonalAccount = cafe.PersonalAccount
             };
         }
+        
+        public static SearchResponse ToSearchResponse(this Cafe cafe, double distance, List<Product> products)
+        {
+            var dist = Math.Round(distance);
+            var stringDist = dist < 1000 ? $"{(int)dist} м" : $"{Math.Round(dist/1000, 1)} км";
+            var response =  new SearchResponse()
+            {
+                Id = cafe.Id,
+                Name = cafe.Name,
+                Avatar = cafe.Avatar,
+                Distance = stringDist,
+                Products = new List<SearchProductResponse>()
+            };
+            foreach (var product in products)
+            {
+                var productResponse = new SearchProductResponse()
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Avatar = product.Avatar,
+                    Weight = product.Weight,
+                    Price = product.Price
+                };
+                response.Products.Add(productResponse);
+            }
+
+            return response;
+        }
     }
 }

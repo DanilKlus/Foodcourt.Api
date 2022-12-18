@@ -24,10 +24,18 @@ namespace Foodcourt.Api.Controllers
             _cafeService = cafeService;
             _userManager = userManager;
         }
+        
+        [HttpGet("search")]
+        [ProducesResponseType(typeof(SearchResponse<CafeResponse>), StatusCodes.Status200OK)]
+        public async Task<ActionResult> Serach([FromQuery]CafeSearchRequest request)
+        {
+            var response = await _cafeService.SearchAsync(request);
+            return Ok(response);
+        }
 
         [HttpGet]
         [ProducesResponseType(typeof(SearchResponse<CafeResponse>), StatusCodes.Status200OK)]
-        public async Task<ActionResult> SearchCafes([FromQuery]CafeSearchRequest request)
+        public async Task<ActionResult> GetCafes([FromQuery]CafeSearchRequest request)
         {
             var response = await _cafeService.GetCafesAsync(request);
             return Ok(response);
@@ -52,15 +60,7 @@ namespace Foodcourt.Api.Controllers
             var response = await _cafeService.GetProductsAsync(cafeId, searchRequest);
             return Ok(response);
         }
-        
-        [HttpGet("products")]
-        [ProducesResponseType(typeof(SearchResponse<ProductResponse>), StatusCodes.Status200OK)]
-        public async Task<ActionResult> SearchProducts([FromQuery] SearchRequest searchRequest)
-        {
-            var response = await _cafeService.GetProductsAsync(null, searchRequest);
-            return Ok(response);
-        }
-        
+
         [HttpGet("{cafeId:long}/products/{productId:long}")]
         [ProducesResponseType(typeof(ProductResponse), StatusCodes.Status200OK)]
         public async Task<ActionResult> GetCafeProduct(long cafeId, long productId)
