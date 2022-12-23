@@ -34,8 +34,8 @@ public class OrderService : IOrderService
             .DistinctBy(x => x.Product.CafeId)
             .Select(x => new Order
             {
-                Status = OrderStatus.Created,
-                PaymentStatus = PaymentStatus.Created,
+                Status = OrderStatus.InQueue,
+                PaymentStatus = PaymentStatus.Paid,
                 TotalPrice = basketProducts
                     .Where(p => p.Product.CafeId.Equals(x.Product.CafeId))
                     .Select(p => p.Product.Price * p.Count).Sum(),
@@ -94,7 +94,7 @@ public class OrderService : IOrderService
         var payedOrders = new List<Order>();
         foreach (var order in orders)
         {
-            order.Status = OrderStatus.InQueue;
+            order.Status = OrderStatus.InWork;
             order.PaymentStatus = PaymentStatus.Paid;
             payedOrders.Add(order);
         }
