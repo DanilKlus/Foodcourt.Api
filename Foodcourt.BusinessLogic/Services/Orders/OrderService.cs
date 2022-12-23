@@ -23,6 +23,8 @@ public class OrderService : IOrderService
         var basket = await _dataContext.Baskets.FirstOrDefaultAsync(x => x.AppUserId.Equals(userId));
         if (basket == null)
             throw new Exception($"unhandled error when get user: {userId} basket (user basket is null)");
+        if (basket.Status == BasketStatus.Empty)
+            throw new CreateOrderException("basket is empty; you cannot create an order");
         var basketProducts = await _dataContext.BasketProducts
             .Include(x => x.ProductVariant)
             .Include(p => p.Product)

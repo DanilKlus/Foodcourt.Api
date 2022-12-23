@@ -33,8 +33,11 @@ namespace Foodcourt.Api.Controllers
             if (userId == null)
                 return BadRequest("User does not have ID");
             
-            await _orderService.CreateOrdersAsync(userId);
-            return Created("orders", userId);
+            try {
+                await _orderService.CreateOrdersAsync(userId);
+                return Created("orders", userId);
+            }
+            catch (CreateOrderException e) { return Conflict(e.Message); }
         }
         
         [HttpPatch("{orderId:long}")]
