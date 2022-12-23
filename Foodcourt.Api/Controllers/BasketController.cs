@@ -1,6 +1,7 @@
 ﻿using System.Net.Mime;
 using Foodcourt.BusinessLogic.Services.Basket;
 using Foodcourt.Data.Api.Request;
+using Foodcourt.Api.Validation.Attributes;
 using Foodcourt.Data.Api.Response;
 using Foodcourt.Data.Api.Response.Exceptions;
 using Microsoft.AspNetCore.Authorization;
@@ -53,12 +54,19 @@ namespace Foodcourt.Api.Controllers
             if (userId == null)
                 return BadRequest("User does not have ID");
             
-            var response = await _basketService.AddProductAsync(userId, addAddProductRequest);
-            return Created("basket", response);
+            try {
+                var response = await _basketService.AddProductAsync(userId, addAddProductRequest);
+                return Created("basket", response);
+            }
+            catch (NotFoundException e) { return NotFound(e.Message); }
+            catch (AddProductException e)
+            {
+                return StatusCode(409, e.Message);
+            }
         }
         
         [HttpPatch("{productId:long}")]
-        public async Task<ActionResult> PatchBasketProduct([FromBody] PatchProductRequest patchProductRequest, long productId)
+        public async Task<ActionResult> PatchBasketProduct([FromBody, ValidPatchProductRequest] PatchProductRequest patchProductRequest, long productId)
         {
             var userId = _userManager.GetUserId(User);
             if (userId == null)
@@ -72,7 +80,7 @@ namespace Foodcourt.Api.Controllers
         }
         
         [HttpDelete("{productId:long}")]
-        public async Task<ActionResult> DeleteBasketProduct([FromQuery] PatchProductRequest patchProductRequest, long productId)
+        public async Task<ActionResult> DeleteBasketProduct(long productId)
         {
             var userId = _userManager.GetUserId(User);
             if (userId == null)

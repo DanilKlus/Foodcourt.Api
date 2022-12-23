@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Foodcourt.BusinessLogic.Extensions;
+﻿using Foodcourt.BusinessLogic.Extensions;
 using Foodcourt.Data;
 using Foodcourt.Data.Api.Entities.Users;
 using Foodcourt.Data.Api.Request;
@@ -71,7 +70,7 @@ public class BasketService : IBasketService
             .Where(x => x.BasketId.Equals(basket.Id))
             .Select(x => x.ProductId)
             .ContainsAsync(addAddProductRequest.Id);
-        if (productIsAdded) //TODO: catch exc
+        if (productIsAdded) 
             throw new AddProductException("Product has already been added to the basket", addAddProductRequest.Id);
         if (basket.Status == BasketStatus.Empty)
         {
