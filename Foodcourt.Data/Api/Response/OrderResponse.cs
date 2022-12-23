@@ -9,6 +9,7 @@ public class OrderResponse
     public double TotalPrice { get; set; }
     public DateTime CreationTime { get; set; }
     public string Comment { get; set; }
+    public string CafeName { get; set; }
     public long CafeId { get; set; }
     public List<OrderProductResponse>? Products { get; set; }
 }

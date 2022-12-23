@@ -14,6 +14,7 @@ namespace Foodcourt.BusinessLogic.Extensions
                 CreationTime = order.CreationTime,
                 Comment = order.Comment,
                 CafeId = order.CafeId,
+                CafeName = order.CafeName,
                 Products = order.OrderProducts != null ? order.OrderProducts.Select(x => x.ToEntity()).ToList() : new List<OrderProductResponse>()
             };
         

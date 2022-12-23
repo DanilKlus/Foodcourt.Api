@@ -11,6 +11,7 @@ public class Order
     public double TotalPrice { get; set; }
     public DateTime CreationTime { get; set; }
     public string Comment { get; set; }
+    public string CafeName { get; set; }
     
     public string AppUserId { get; set; }
     public AppUser AppUser { get; set; }

@@ -41,6 +41,7 @@ public class OrderService : IOrderService
                     .Select(p => p.Product.Price * p.Count).Sum(),
                 CreationTime = DateTime.UtcNow,
                 Comment = "",
+                CafeName = x.Product.Cafe.Name,
                 AppUserId = userId,
                 CafeId = x.Product.CafeId,
                 OrderProducts = basketProducts
