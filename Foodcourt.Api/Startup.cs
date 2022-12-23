@@ -35,6 +35,15 @@ namespace Foodcourt.Api
                 .AddTokenProvider(Configuration["GoogleAuthSettings:GoogleTokenProvider"],
                 typeof(DataProtectorTokenProvider<IdentityUser>));
             
+            services.Configure<IdentityOptions>(options =>
+            { 
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 4;
+            });
+            
             services.AddAuthentication(auth =>
                 {
                     auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
