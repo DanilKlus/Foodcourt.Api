@@ -111,6 +111,7 @@ public class OrderService : IOrderService
         var takeCount = searchRequest.Take ?? 50;
         var ordersResult = await _dataContext.Orders.Where(x => x.AppUserId == userId).ToListAsync();
         var orders = (orderStatus != null ? ordersResult.Where(x => x.Status == orderStatus) : ordersResult)
+            .OrderByDescending(x => x.CreationTime)
             .Skip(skipCount).Take(takeCount).ToList();
 
         return new SearchResponse<OrderResponse>
