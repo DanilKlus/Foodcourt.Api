@@ -245,5 +245,31 @@ namespace Foodcourt.Api.Controllers
                 return StatusCode(403, e.Message);
             }
         }
+        
+        [HttpPatch("{cafeId:long}/products/{productId:long}")]
+        [Authorize(Roles = CustomRoles.Director)]
+        [ProducesResponseType(typeof(CafeResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(NotFoundException), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> PatchCafeProduct(long cafeId, long productId, [FromBody] UpdateProductRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest("Model not valid");
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return BadRequest("User does not have ID");
+
+            try
+            {
+                await _cafeService.PatchCafeProductAsync(request, cafeId, productId, userId);
+                return Ok();
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (NotHaveAccessException e)
+            {
+                return StatusCode(403, e.Message);
+            }
+        }
     }
 }

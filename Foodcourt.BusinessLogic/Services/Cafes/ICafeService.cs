@@ -19,4 +19,5 @@ public interface ICafeService
     Task DeleteCafeProductAsync(string userId, long cafeId, long productId);
     
     Task CreateCafeProductAsync(CreateProductRequest request, long cafeId, string userId);
+    Task PatchCafeProductAsync(UpdateProductRequest request, long cafeId, long productId, string userId);
 }

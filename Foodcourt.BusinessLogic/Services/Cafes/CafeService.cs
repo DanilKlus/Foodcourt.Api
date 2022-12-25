@@ -194,6 +194,26 @@ public class CafeService : ICafeService
         await _dataContext.SaveChangesAsync();
     }
 
+    public async Task PatchCafeProductAsync(UpdateProductRequest request, long cafeId, long productId, string userId)
+    {
+        var product = await _dataContext.Products.FirstOrDefaultAsync(x => x.Id.Equals(productId));
+        if (product == null)
+            throw new NotFoundException($"Product with id '{productId}' not found");
+        await CheckAccess(userId, product.CafeId);
+
+        if (request.Name != null) product.Name = request.Name;
+        if (request.Description != null) product.Description = request.Description;
+        if (request.Price != null) product.Price = (double)request.Price;
+        if (request.Weight != null) product.Weight = (double)request.Weight;
+        if (request.Proteins != null) product.Proteins = (double)request.Proteins;
+        if (request.Carbohydrates != null) product.Carbohydrates = (double)request.Carbohydrates;
+        if (request.Fats != null) product.Fats = (double)request.Fats;
+        if (request.Kcal != null) product.Kcal = (double)request.Kcal;
+
+        _dataContext.Products.Update(product);
+        await _dataContext.SaveChangesAsync();
+    }
+
     private async Task CheckAccess(string userId, long cafeId)
     {
         var cafe = await _dataContext.Cafes.Include(x => x.AppUsers).FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));
