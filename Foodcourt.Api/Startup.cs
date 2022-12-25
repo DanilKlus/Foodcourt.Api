@@ -86,6 +86,12 @@ namespace Foodcourt.Api
             services.AddSystemServices();
             services.AddServiceCors();
             services.AddSwaggerDocument(doc => doc.Title = "Foodcourt.Api");
+            
+            services.Configure<CookiePolicyOptions>(options =>
+            { 
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
         }
 
 
