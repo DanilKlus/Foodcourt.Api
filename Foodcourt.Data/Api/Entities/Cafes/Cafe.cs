@@ -15,7 +15,7 @@ public class Cafe
     public double Latitude { get; set; }
     public double Longitude { get; set; }
     public bool IsActive { get; set; } = false;
-    public bool Approved { get; set; } = false;
+    public DateTime CreationTime { get; set; }
     
     public List<Order> Orders { get; set; }
     public List<Product> Products { get; set; }

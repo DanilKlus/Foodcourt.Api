@@ -2,27 +2,20 @@
 using Foodcourt.Data;
 using Foodcourt.Data.Api;
 using Foodcourt.Data.Api.Entities.Cafes;
-using Foodcourt.Data.Api.Entities.Users;
 using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
 using Foodcourt.Data.Api.Response.Exceptions;
 using GeoCoordinatePortable;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace Foodcourt.BusinessLogic.Services.Cafes;
 
 public class CafeService : ICafeService
 {
     private readonly AppDataContext _dataContext;
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly IConfiguration _configuration;
-    public CafeService(AppDataContext dataContext, UserManager<IdentityUser> userManager, IConfiguration configuration)
+    public CafeService(AppDataContext dataContext)
     {
         _dataContext = dataContext;
-        _userManager = userManager;
-        _configuration = configuration;
     }
 
     public async Task<SearchResponse<CafeResponse>> GetCafesAsync(CafeSearchRequest cafeSearch)
@@ -82,21 +75,6 @@ public class CafeService : ICafeService
         var user = await _dataContext.AppUsers.FirstAsync(x => x.Id.Equals(userId));
         user.Cafes = new List<Cafe> { cafeRequest.FromEntity() };
         
-        await _userManager.AddToRoleAsync(user, CustomRoles.Director);
-        await _dataContext.SaveChangesAsync();
-    }
-
-    public async Task SetCafeStatusAsync(long cafeId, bool status, string responce)
-    {
-        var cafe = await _dataContext.Cafes.Include(x => x.AppUsers).FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));
-        if (cafe == null)
-            throw new NotFoundException($"Cafe with id '{cafeId}' not found");
-        
-        cafe.IsActive = status;
-        cafe.Approved = status;
-        cafe.Response = responce;
-
-        _dataContext.Cafes.Update(cafe);
         await _dataContext.SaveChangesAsync();
     }
 
@@ -150,26 +128,6 @@ public class CafeService : ICafeService
         return cafes.Select(cafe => cafe.ToSearchResponse(
             GetDistance(cafe.Latitude, cafe.Longitude, request.Latitude, request.Longitude), 
             products.Where(product => product.CafeId == cafe.Id).ToList())).Skip(skipCount).Take(takeCount).ToList();
-    }
-
-    public async Task<SearchResponse<CafeApplicationResponse>> GetCafesApplicationsAsync(SearchApplicationRequest request, bool isAdmin, string userId)
-    {
-        var skipCount = request.Skip ?? 0;
-        var takeCount = request.Take ?? 50;
-        var query = request.Query ?? "";
-        
-        var cafes = await _dataContext.Cafes.Include(x => x.AppUsers).Where(cafe => 
-            cafe.Approved == request.Approved &&
-            cafe.IsActive == request.IsActive 
-            && cafe.Name.ToLower().Contains(query.ToLower()))
-            .ToListAsync();
-        
-        if (isAdmin)
-            return new SearchResponse<CafeApplicationResponse>(cafes.Skip(skipCount).Take(takeCount).Select(x => x.ToApplicationEntity()).ToList(), cafes.Count);
-
-        var applications = cafes.Skip(skipCount).Take(takeCount)
-            .Where(x => x.AppUsers.Select(cafeUser => cafeUser.Id).Contains(userId)).ToList();
-        return new SearchResponse<CafeApplicationResponse>(applications.Select(x => x.ToApplicationEntity()).ToList(), applications.Count);
     }
 
     public async Task DeleteCafeProductAsync(string userId, long cafeId, long productId)

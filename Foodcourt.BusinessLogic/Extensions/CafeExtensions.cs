@@ -14,7 +14,8 @@ namespace Foodcourt.BusinessLogic.Extensions
                 Name = cafe.Name,
                 Avatar = cafe.Avatar,
                 Address = cafe.Address,
-                Rating = cafe.Rating
+                Rating = cafe.Rating,
+                Description = cafe.Description
             };
         }
         
@@ -40,7 +41,8 @@ namespace Foodcourt.BusinessLogic.Extensions
                 Id = cafe.Id,
                 Name = cafe.Name,
                 Avatar = cafe.Avatar,
-                Address = cafe.Address
+                Address = cafe.Address,
+                CreationTime = cafe.CreationTime
             };
         }
         
@@ -57,7 +59,8 @@ namespace Foodcourt.BusinessLogic.Extensions
                 Latitude = cafe.Latitude,
                 Longitude = cafe.Longitude,
                 CertifyingDocument = cafe.CertifyingDocument,
-                PersonalAccount = cafe.PersonalAccount
+                PersonalAccount = cafe.PersonalAccount,
+                CreationTime = DateTime.UtcNow
             };
         }
         

@@ -269,8 +269,6 @@ public class AuthService : IAuthService
         var confirmationCode = user.ConfirmationCode;
         var expiredTo = user.CodeExpiredTo;
 
-        var t = DateTime.Now.CompareTo(expiredTo);
-
         if (DateTime.Now.CompareTo(expiredTo) != 1)
             throw new Exception("token expired");
         if (!confirmationCode.Equals(code))
