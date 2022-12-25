@@ -40,8 +40,7 @@ namespace Foodcourt.BusinessLogic.Extensions
             {
                 Id = cafe.Id,
                 Name = cafe.Name,
-                Avatar = cafe.Avatar,
-                Address = cafe.Address,
+                Status = cafe.Status,
                 CreationTime = cafe.CreationTime
             };
         }
