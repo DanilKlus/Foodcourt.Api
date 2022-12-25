@@ -107,6 +107,8 @@ public class CafeService : ICafeService
 
         if (request.Name != null)
             cafe.Name = request.Name;
+        if (request.Description != null)
+            cafe.Description = request.Description;
         if (request.PersonalAccount != null)
             cafe.PersonalAccount = request.PersonalAccount;
 
@@ -164,20 +166,20 @@ public class CafeService : ICafeService
         
         if (isAdmin)
             return new SearchResponse<CafeApplicationResponse>(cafes.Skip(skipCount).Take(takeCount).Select(x => x.ToApplicationEntity()).ToList(), cafes.Count);
-        
-        return new SearchResponse<CafeApplicationResponse>(cafes.Skip(skipCount).Take(takeCount)
-            .Where(x => x.AppUsers.Select(cafeUser => cafeUser.Id).Contains(userId))
-            .Select(x => x.ToApplicationEntity()).ToList(), cafes.Count);
+
+        var applications = cafes.Skip(skipCount).Take(takeCount)
+            .Where(x => x.AppUsers.Select(cafeUser => cafeUser.Id).Contains(userId)).ToList();
+        return new SearchResponse<CafeApplicationResponse>(applications.Select(x => x.ToApplicationEntity()).ToList(), applications.Count);
     }
 
     public async Task DeleteCafeProductAsync(string userId, long cafeId, long productId)
     {
         await CheckAccess(userId, cafeId);
 
-        var product = await _dataContext.Products.FirstOrDefaultAsync(x => x.Id.Equals(productId));
+        var product = await _dataContext.Products.FirstOrDefaultAsync(x => x.CafeId.Equals(cafeId) && x.Id.Equals(productId));
         if (product != null)
         {
-            _dataContext.Products.RemoveRange(product);
+            _dataContext.Products.Remove(product);
             await _dataContext.SaveChangesAsync();
         }
     }
