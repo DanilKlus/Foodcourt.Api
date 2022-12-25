@@ -41,6 +41,34 @@ namespace Foodcourt.Api.Controllers
             return Ok(response);
         }
         
+        [Authorize(Roles = CustomRoles.Administrator)]
+        [HttpGet("applications")]
+        [ProducesResponseType(typeof(SearchResponse<CafeApplicationResponse>), StatusCodes.Status200OK)]
+        public async Task<ActionResult> GetCafesApplications([FromQuery]SearchApplicationRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest("Model not valid");
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return BadRequest("User does not have ID");
+            
+            var response = await _cafeService.GetCafesApplicationsAsync(request, true, userId);
+            return Ok(response);
+        }
+        
+        [Authorize(Roles = CustomRoles.Director)]
+        [HttpGet("my-applications")]
+        [ProducesResponseType(typeof(SearchResponse<CafeApplicationResponse>), StatusCodes.Status200OK)]
+        public async Task<ActionResult> GetMyCafesApplications([FromQuery]SearchApplicationRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest("Model not valid");
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return BadRequest("User does not have ID");
+            
+            var response = await _cafeService.GetCafesApplicationsAsync(request, false, userId);
+            return Ok(response);
+        }
+        
         [HttpGet("{cafeId:long}")]
         [ProducesResponseType(typeof(CafeResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(NotFoundException), StatusCodes.Status404NotFound)]
@@ -89,14 +117,28 @@ namespace Foodcourt.Api.Controllers
         [Authorize(Roles = CustomRoles.Administrator)]
         [HttpPost("{cafeId:long}/approve")]
         [ProducesResponseType(typeof(NotFoundException), StatusCodes.Status404NotFound)]        
-        public async Task<ActionResult> ApproveCafe(long cafeId)
+        public async Task<ActionResult> ApproveCafe(long cafeId, [FromQuery] string responce)
         {
             if (!ModelState.IsValid) return BadRequest("Model not valid");
             var userId = _userManager.GetUserId(User);
             if (userId == null)
                 return BadRequest("User does not have ID");
             
-            await _cafeService.ApproveCafeAsync(cafeId);
+            await _cafeService.SetCafeStatusAsync(cafeId, true, responce);
+            return Ok();
+        }
+        
+        [Authorize(Roles = CustomRoles.Administrator)]
+        [HttpPost("{cafeId:long}/reject")]
+        [ProducesResponseType(typeof(NotFoundException), StatusCodes.Status404NotFound)]        
+        public async Task<ActionResult> RejectCafe(long cafeId, [FromQuery] string responce)
+        {
+            if (!ModelState.IsValid) return BadRequest("Model not valid");
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return BadRequest("User does not have ID");
+            
+            await _cafeService.SetCafeStatusAsync(cafeId, false, responce);
             return Ok();
         }
         
@@ -140,6 +182,58 @@ namespace Foodcourt.Api.Controllers
             try
             {
                 await _cafeService.DeleteCafeAsync(userId, cafeId);
+                return Ok();
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (NotHaveAccessException e)
+            {
+                return StatusCode(403, e.Message);
+            }
+        }
+        
+        [HttpDelete("{cafeId:long}/products/{productId:long}")]
+        [Authorize(Roles = CustomRoles.Director)]
+        [ProducesResponseType(typeof(CafeResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(NotFoundException), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> DeleteCafeProduct(long cafeId, long productId)
+        {
+            if (!ModelState.IsValid) return BadRequest("Model not valid");
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return BadRequest("User does not have ID");
+
+            try
+            {
+                await _cafeService.DeleteCafeProductAsync(userId, cafeId, productId);
+                return Ok();
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (NotHaveAccessException e)
+            {
+                return StatusCode(403, e.Message);
+            }
+        }
+        
+        [HttpPost("{cafeId:long}/products")]
+        [Authorize(Roles = CustomRoles.Director)]
+        [ProducesResponseType(typeof(CafeResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(NotFoundException), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> CreateCafeProduct(long cafeId, [FromBody] CreateProductRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest("Model not valid");
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return BadRequest("User does not have ID");
+
+            try
+            {
+                await _cafeService.CreateCafeProductAsync(request, cafeId, userId);
                 return Ok();
             }
             catch (NotFoundException e)

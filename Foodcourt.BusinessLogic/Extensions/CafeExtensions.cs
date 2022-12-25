@@ -33,6 +33,17 @@ namespace Foodcourt.BusinessLogic.Extensions
             };
         }
         
+        public static CafeApplicationResponse ToApplicationEntity(this Cafe cafe)
+        {
+            return new CafeApplicationResponse()
+            {
+                Id = cafe.Id,
+                Name = cafe.Name,
+                Avatar = cafe.Avatar,
+                Adress = cafe.Adress
+            };
+        }
+        
         public static Cafe FromEntity(this CafeCreateRequest cafe)
         {
             return new Cafe()
@@ -41,6 +52,7 @@ namespace Foodcourt.BusinessLogic.Extensions
                 Adress = cafe.Adress,
                 Avatar = "",
                 Response = "",
+                Description = cafe.Description,
                 Rating = cafe.Rating,
                 Latitude = cafe.Latitude,
                 Longitude = cafe.Longitude,

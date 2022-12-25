@@ -2,6 +2,7 @@
 using Foodcourt.Data;
 using Foodcourt.Data.Api;
 using Foodcourt.Data.Api.Entities.Cafes;
+using Foodcourt.Data.Api.Entities.Users;
 using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
 using Foodcourt.Data.Api.Response.Exceptions;
@@ -80,31 +81,29 @@ public class CafeService : ICafeService
     {
         var user = await _dataContext.AppUsers.FirstAsync(x => x.Id.Equals(userId));
         user.Cafes = new List<Cafe> { cafeRequest.FromEntity() };
-
+        
+        await _userManager.AddToRoleAsync(user, CustomRoles.Director);
         await _dataContext.SaveChangesAsync();
     }
 
-    public async Task ApproveCafeAsync(long cafeId)
+    public async Task SetCafeStatusAsync(long cafeId, bool status, string responce)
     {
         var cafe = await _dataContext.Cafes.Include(x => x.AppUsers).FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));
         if (cafe == null)
             throw new NotFoundException($"Cafe with id '{cafeId}' not found");
         
-        cafe.IsActive = true;
-        var user = cafe.AppUsers.First();
-        
+        cafe.IsActive = status;
+        cafe.Approved = status;
+        cafe.Response = responce;
+
         _dataContext.Cafes.Update(cafe);
         await _dataContext.SaveChangesAsync();
-        await _userManager.AddToRoleAsync(user, _configuration["Roles:Director"]);
     }
 
     public async Task PatchCafeAsync(PatchCafeRequest request, string userId, long cafeId)
     {
+        await CheckAccess(userId, cafeId);
         var cafe = await _dataContext.Cafes.Include(x => x.AppUsers).FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));
-        if (cafe == null)
-            throw new NotFoundException($"Cafe with id '{cafeId}' not found");
-        if (!cafe.AppUsers.Select(x => x.Id).Contains(userId))
-            throw new NotHaveAccessException("the user does not have access to the cafe");
 
         if (request.Name != null)
             cafe.Name = request.Name;
@@ -117,11 +116,8 @@ public class CafeService : ICafeService
 
     public async Task DeleteCafeAsync(string userId, long cafeId)
     {
+        await CheckAccess(userId, cafeId);
         var cafe = await _dataContext.Cafes.Include(x => x.AppUsers).FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));
-        if (cafe == null)
-            throw new NotFoundException($"Cafe with id '{cafeId}' not found");
-        if (!cafe.AppUsers.Select(x => x.Id).Contains(userId))
-            throw new NotHaveAccessException("the user does not have access to the cafe");
 
         cafe.IsActive = false;
 
@@ -151,7 +147,58 @@ public class CafeService : ICafeService
 
         return cafes.Select(cafe => cafe.ToSearchResponse(
             GetDistance(cafe.Latitude, cafe.Longitude, request.Latitude, request.Longitude), 
-            products.Where(product => product.CafeId == cafe.Id).ToList())).ToList();
+            products.Where(product => product.CafeId == cafe.Id).ToList())).Skip(skipCount).Take(takeCount).ToList();
+    }
+
+    public async Task<SearchResponse<CafeApplicationResponse>> GetCafesApplicationsAsync(SearchApplicationRequest request, bool isAdmin, string userId)
+    {
+        var skipCount = request.Skip ?? 0;
+        var takeCount = request.Take ?? 50;
+        var query = request.Query ?? "";
+        
+        var cafes = await _dataContext.Cafes.Include(x => x.AppUsers).Where(cafe => 
+            cafe.Approved == request.Approved &&
+            cafe.IsActive == request.IsActive 
+            && cafe.Name.ToLower().Contains(query.ToLower()))
+            .ToListAsync();
+        
+        if (isAdmin)
+            return new SearchResponse<CafeApplicationResponse>(cafes.Skip(skipCount).Take(takeCount).Select(x => x.ToApplicationEntity()).ToList(), cafes.Count);
+        
+        return new SearchResponse<CafeApplicationResponse>(cafes.Skip(skipCount).Take(takeCount)
+            .Where(x => x.AppUsers.Select(cafeUser => cafeUser.Id).Contains(userId))
+            .Select(x => x.ToApplicationEntity()).ToList(), cafes.Count);
+    }
+
+    public async Task DeleteCafeProductAsync(string userId, long cafeId, long productId)
+    {
+        await CheckAccess(userId, cafeId);
+
+        var product = await _dataContext.Products.FirstOrDefaultAsync(x => x.Id.Equals(productId));
+        if (product != null)
+        {
+            _dataContext.Products.RemoveRange(product);
+            await _dataContext.SaveChangesAsync();
+        }
+    }
+
+    public async Task CreateCafeProductAsync(CreateProductRequest request, long cafeId, string userId)
+    {
+        await CheckAccess(userId, cafeId);
+        var cafe = await _dataContext.Cafes.FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));
+        var product = request.ToDbEntity(cafe);
+
+        _dataContext.Products.Add(product);
+        await _dataContext.SaveChangesAsync();
+    }
+
+    private async Task CheckAccess(string userId, long cafeId)
+    {
+        var cafe = await _dataContext.Cafes.Include(x => x.AppUsers).FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));
+        if (cafe == null)
+            throw new NotFoundException($"Cafe with id '{cafeId}' not found");
+        if (!cafe.AppUsers.Select(x => x.Id).Contains(userId))
+            throw new NotHaveAccessException("the user does not have access to the cafe");
     }
 
     private static double GetDistance(double cafeLatitude, double cafeLongitude, double? userLatitude, double? userLongitude)

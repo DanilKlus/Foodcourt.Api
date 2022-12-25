@@ -1,4 +1,5 @@
 ﻿using Foodcourt.Data.Api.Entities.Cafes;
+using Foodcourt.Data.Api.Request;
 using Foodcourt.Data.Api.Response;
 
 namespace Foodcourt.BusinessLogic.Extensions
@@ -28,6 +29,25 @@ namespace Foodcourt.BusinessLogic.Extensions
                 ProductTypes = product.ProductTypes != null
                     ? product.ProductTypes.Select(p => new ProductTypeResponse(p.Id, p.Type)).ToList()
                     : new List<ProductTypeResponse>()
+            };
+        }
+        
+        public static Product ToDbEntity(this CreateProductRequest request, Cafe cafe)
+        {
+            return new Product()
+            {
+                Name = request.Name,
+                Description = request.Description,
+                Avatar = "",
+                Status = ProductStatus.Available,
+                Price = request.Price,
+                Cafe = cafe,
+                CafeId = cafe.Id,
+                Proteins = request.Proteins,
+                Fats = request.Fats,
+                Carbohydrates = request.Carbohydrates,
+                Weight = request.Weight,
+                Kcal = request.Kcal,
             };
         }
     }

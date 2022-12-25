@@ -295,7 +295,7 @@ public class AuthService : IAuthService
             issuer: _configuration["AuthSettings:Issuer"],
             audience: _configuration["AuthSettings:Audience"],
             claims: claims,
-            expires: DateTime.Now.AddDays(Convert.ToDouble(_configuration["AuthSettings:TokenLifeDays"])),
+            expires: DateTime.Now.AddDays(Convert.ToDouble(15.0)),
             signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256));
         return token;
     }
