@@ -45,7 +45,7 @@ namespace Foodcourt.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Adress")
+                    b.Property<string>("Address")
                         .IsRequired()
                         .HasColumnType("text");
 

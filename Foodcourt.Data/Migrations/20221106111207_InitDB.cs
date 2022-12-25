@@ -64,7 +64,7 @@ namespace Foodcourt.Data.Migrations
                     Description = table.Column<string>(type: "text", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     Avatar = table.Column<string>(type: "text", nullable: false),
-                    Adress = table.Column<string>(type: "text", nullable: false),
+                    Address = table.Column<string>(type: "text", nullable: false),
                     Latitude = table.Column<double>(type: "double precision", nullable: false),
                     Longitude = table.Column<double>(type: "double precision", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),

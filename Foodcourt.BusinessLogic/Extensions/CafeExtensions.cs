@@ -13,7 +13,7 @@ namespace Foodcourt.BusinessLogic.Extensions
                 Id = cafe.Id,
                 Name = cafe.Name,
                 Avatar = cafe.Avatar,
-                Adress = cafe.Adress,
+                Address = cafe.Address,
                 Rating = cafe.Rating
             };
         }
@@ -27,7 +27,7 @@ namespace Foodcourt.BusinessLogic.Extensions
                 Id = cafe.Id,
                 Name = cafe.Name,
                 Avatar = cafe.Avatar,
-                Adress = cafe.Adress,
+                Address = cafe.Address,
                 Distance = stringDist,
                 Rating = cafe.Rating
             };
@@ -40,7 +40,7 @@ namespace Foodcourt.BusinessLogic.Extensions
                 Id = cafe.Id,
                 Name = cafe.Name,
                 Avatar = cafe.Avatar,
-                Adress = cafe.Adress
+                Address = cafe.Address
             };
         }
         
@@ -49,7 +49,7 @@ namespace Foodcourt.BusinessLogic.Extensions
             return new Cafe()
             {
                 Name = cafe.Name,
-                Adress = cafe.Adress,
+                Address = cafe.Address,
                 Avatar = "",
                 Response = "",
                 Description = cafe.Description,
