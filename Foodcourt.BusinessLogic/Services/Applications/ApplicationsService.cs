@@ -56,6 +56,15 @@ public class ApplicationsService : IApplicationsService
         return new SearchResponse<CafeApplicationResponse>(cafes.Skip(skipCount).Take(takeCount).Select(x => x.ToApplicationEntity()).ToList(), cafes.Count);
     }
 
+    public async Task<FullApplicationEntity> GetCafeApplicationAsync(long cafeId)
+    {
+        var cafe = await _dataContext.Cafes.FirstOrDefaultAsync(x => x.Id.Equals(cafeId));
+        if (cafe == null)
+            throw new NotFoundException($"application with id '{cafeId}' not found");
+        
+        return cafe.ToFullApplicationEntity();
+    }
+
     public async Task SetCafeStatusAsync(long cafeId, bool status, string response)
     {
         var cafe = await _dataContext.Cafes.Include(x => x.AppUsers).FirstOrDefaultAsync(cafe => Equals(cafe.Id, cafeId));

@@ -40,6 +40,27 @@ namespace Foodcourt.Api.Controllers
             return Ok(response);
         }
         
+        [Authorize(Roles = CustomRoles.Administrator)]
+        [HttpGet("{cafeId:long}")]
+        [ProducesResponseType(typeof(SearchResponse<CafeApplicationResponse>), StatusCodes.Status200OK)]
+        public async Task<ActionResult> GetCafeApplication(long cafeId)
+        {
+            if (!ModelState.IsValid) return BadRequest("Model not valid");
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return BadRequest("User does not have ID");
+            
+            try
+            {
+                var response = await _applicationsService.GetCafeApplicationAsync(cafeId);
+                return Ok(response);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+        
         [HttpGet("my")]
         [ProducesResponseType(typeof(SearchResponse<CafeApplicationResponse>), StatusCodes.Status200OK)]
         public async Task<ActionResult> GetMyCafesApplications()
