@@ -46,6 +46,23 @@ namespace Foodcourt.BusinessLogic.Extensions
             };
         }
         
+        public static FullApplicationEntity ToFullApplicationEntity(this Cafe cafe)
+        {
+            return new FullApplicationEntity()
+            {
+                Id = cafe.Id,
+                Name = cafe.Name,
+                Address = cafe.Address,
+                CreationTime = cafe.CreationTime,
+                Response = cafe.Response,
+                Status = cafe.Status,
+                CertifyingDocument = cafe.CertifyingDocument,
+                PersonalAccount = cafe.PersonalAccount,
+                Rating = cafe.Rating,
+                Description = cafe.Description
+            };
+        }
+        
         public static Cafe FromEntity(this CafeCreateRequest cafe)
         {
             return new Cafe()

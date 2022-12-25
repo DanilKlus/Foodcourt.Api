@@ -33,14 +33,14 @@ public class ApplicationsService : IApplicationsService
         return new SearchResponse<CafeApplicationResponse>(cafes.Select(x => x.ToApplicationEntity()).ToList(), cafes.Count);
     }
 
-    public async Task<CafeApplicationResponse> GetMyCafeApplicationAsync(string userId, long cafeId)
+    public async Task<FullApplicationEntity> GetMyCafeApplicationAsync(string userId, long cafeId)
     {
         var cafe = await _dataContext.Cafes.Include(x => x.AppUsers)
             .FirstOrDefaultAsync(x => x.AppUsers.Select(cafeUser => cafeUser.Id).Contains(userId));
         if (cafe == null)
             throw new NotFoundException($"application with id '{cafeId}' not found");
         
-        return cafe.ToApplicationEntity();
+        return cafe.ToFullApplicationEntity();
     }
 
     public async Task<SearchResponse<CafeApplicationResponse>> GetCafesApplicationsAsync(SearchApplicationRequest request)

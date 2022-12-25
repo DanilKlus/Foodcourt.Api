@@ -8,7 +8,7 @@ public interface IApplicationsService
 {
     Task<SearchResponse<CafeApplicationResponse>> GetMyCafesApplicationsAsync(string userId);
     
-    Task<CafeApplicationResponse> GetMyCafeApplicationAsync(string userId, long cafeId);
+    Task<FullApplicationEntity> GetMyCafeApplicationAsync(string userId, long cafeId);
     Task<SearchResponse<CafeApplicationResponse>> GetCafesApplicationsAsync(SearchApplicationRequest request);
     Task SetCafeStatusAsync(long cafeId, bool status, string response);
 }
